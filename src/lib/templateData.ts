@@ -4,7 +4,7 @@ export type Template = {
   name: string;
   industry: "realtor" | "consultant" | "lawyer" | "coach" | "general";
   layout: "standard" | "modern" | "minimal" | "bold" | "hubspot" | "compact";
-  premium: boolean;
+  premium: boolean; // We'll keep this property but set all to false
   defaultValues: {
     name: string;
     title: string;
@@ -130,11 +130,11 @@ export const templates: Template[] = [
     socialIconStyle: "square"
   },
   {
-    id: "realtor-premium",
-    name: "Realtor Premium",
+    id: "realtor-hubspot",
+    name: "Realtor HubSpot",
     industry: "realtor",
-    layout: "modern",
-    premium: true,
+    layout: "hubspot",
+    premium: false,
     defaultValues: {
       name: "Sam Rivera",
       title: "Luxury Real Estate Specialist",
@@ -156,10 +156,10 @@ export const templates: Template[] = [
     socialIconStyle: "color"
   },
   {
-    id: "general-standard",
-    name: "General Standard",
+    id: "general-compact",
+    name: "General Compact",
     industry: "general",
-    layout: "standard",
+    layout: "compact",
     premium: false,
     defaultValues: {
       name: "Jamie Doe",

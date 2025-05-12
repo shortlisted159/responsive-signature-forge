@@ -14,9 +14,9 @@ interface ExportOptionsProps {
 export default function ExportOptions({ signature }: ExportOptionsProps) {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState("code");
+  const html = generateSignatureHTML(signature);
 
   const handleCopyCode = () => {
-    const html = generateSignatureHTML(signature);
     navigator.clipboard.writeText(html);
     setCopied(true);
     toast.success("HTML code copied to clipboard");
@@ -68,17 +68,7 @@ export default function ExportOptions({ signature }: ExportOptionsProps) {
             </div>
             <div className="bg-slate-100 p-3 rounded text-xs font-mono h-32 overflow-y-auto">
               <code className="text-slate-700 whitespace-pre-wrap break-all">
-                {/* Preview of the HTML */}
-                &lt;table&gt;
-                  {/* Simplified preview */}
-                  &lt;tr&gt;
-                    &lt;td&gt;{signature.data.personalInfo.name}&lt;/td&gt;
-                  &lt;/tr&gt;
-                  &lt;tr&gt;
-                    &lt;td&gt;{signature.data.personalInfo.title}&lt;/td&gt;
-                  &lt;/tr&gt;
-                  {/* More code would appear here */}
-                &lt;/table&gt;
+                {html}
               </code>
             </div>
             <p className="text-xs text-muted-foreground mt-2">

@@ -17,7 +17,7 @@ const Index = () => {
   useEffect(() => {
     // Check if there are any saved signatures
     const savedSignatures = getSignatures();
-    if (savedSignatures.length > 0 && !currentSignature) {
+    if (savedSignatures.length > 0) {
       // Load the most recent signature
       const mostRecent = savedSignatures.sort((a, b) => 
         new Date(b.dateModified).getTime() - new Date(a.dateModified).getTime()
@@ -90,9 +90,6 @@ const Index = () => {
             <Button size="sm" variant="outline" className="hidden md:inline-flex mr-2">
               Help
             </Button>
-            <Button size="sm" className="bg-brand-purple hover:bg-brand-dark-purple text-white">
-              Upgrade to Premium
-            </Button>
           </div>
         </div>
       </header>
@@ -152,7 +149,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t py-4 px-6 text-center">
         <p className="text-sm text-muted-foreground">
-          Email Signature Generator by Your Company &copy; {new Date().getFullYear()}
+          Email Signature Generator &copy; {new Date().getFullYear()}
         </p>
       </footer>
     </div>
