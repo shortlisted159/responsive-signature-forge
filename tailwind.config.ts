@@ -68,6 +68,10 @@ export default {
 					'dark-purple': '#7E69AB',
 					'light-purple': '#E5DEFF',
 					'vivid-purple': '#8B5CF6',
+					'hubspot-orange': '#FF7A59',
+					'hubspot-dark': '#33475B',
+					'hubspot-teal': '#00BDA5',
+					'hubspot-blue': '#2E475D'
 				}
 			},
 			borderRadius: {

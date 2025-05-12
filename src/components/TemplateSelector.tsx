@@ -11,7 +11,6 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { templates, Template } from "@/lib/templateData";
-import { Lock } from "lucide-react";
 
 interface TemplateSelectorProps {
   onTemplateSelect: (template: Template) => void;
@@ -50,11 +49,11 @@ export default function TemplateSelector({ onTemplateSelect }: TemplateSelectorP
         </Select>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredTemplates.map((template) => (
           <Card 
             key={template.id} 
-            className={`overflow-hidden border hover:shadow-md transition-shadow cursor-pointer ${template.premium ? 'relative' : ''}`}
+            className="overflow-hidden border hover:shadow-md transition-shadow cursor-pointer"
           >
             <CardContent className="p-4">
               <div className="flex justify-between items-start mb-3">
@@ -62,14 +61,9 @@ export default function TemplateSelector({ onTemplateSelect }: TemplateSelectorP
                   <h3 className="font-medium text-lg">{template.name}</h3>
                   <p className="text-sm text-muted-foreground capitalize">{template.industry} • {template.layout}</p>
                 </div>
-                {template.premium && (
-                  <div className="bg-brand-purple text-white px-2 py-1 rounded-md text-xs font-medium">
-                    PREMIUM
-                  </div>
-                )}
               </div>
               <div className="h-[120px] bg-slate-100 flex items-center justify-center rounded-md mb-3">
-                {/* Template preview would go here - simplified for this example */}
+                {/* Template preview image */}
                 <div className="text-xs text-slate-400">Signature Preview</div>
               </div>
               <Button 
@@ -77,12 +71,7 @@ export default function TemplateSelector({ onTemplateSelect }: TemplateSelectorP
                 className="w-full"
                 onClick={() => onTemplateSelect(template)}
               >
-                {template.premium ? (
-                  <span className="flex items-center">
-                    <Lock className="h-4 w-4 mr-2" /> 
-                    Use Premium Template
-                  </span>
-                ) : "Use Template"}
+                Use Template
               </Button>
             </CardContent>
           </Card>
