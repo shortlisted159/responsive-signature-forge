@@ -40,7 +40,7 @@ export type SignatureData = {
     settings: {
       imagePosition: "left" | "right" | "top" | "none";
       socialIconStyle: "color" | "monochrome" | "circle" | "square";
-      layout: "standard" | "modern" | "minimal" | "bold";
+      layout: "standard" | "modern" | "minimal" | "bold" | "hubspot" | "compact";
     };
     premium?: {
       seasonal?: {

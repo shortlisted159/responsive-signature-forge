@@ -130,6 +130,55 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
         </table>
       `;
       break;
+    case 'hubspot':
+      templateHTML = `
+        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font}; max-width: 500px; color: #333333; border: 1px solid #e5e7eb;">
+          <tr>
+            ${settings.imagePosition !== 'none' ? 
+              `<td style="width: 30%; padding: 15px; vertical-align: middle; border-right: 1px solid #e5e7eb; text-align: center;">
+                ${photoHTML}
+              </td>` : ''}
+            <td style="vertical-align: top; padding: 15px; ${settings.imagePosition === 'none' ? 'width: 100%;' : ''}">
+              <div style="margin-bottom: 5px;">
+                <span style="font-weight: bold; font-size: 16px; color: ${branding.primaryColor};">${sanitize(personalInfo.name)}</span>
+              </div>
+              <div style="margin-bottom: 10px; color: #555;">
+                <span style="font-size: 14px;">${sanitize(personalInfo.title)}${personalInfo.company ? ` | ${sanitize(personalInfo.company)}` : ''}</span>
+              </div>
+              <div style="font-size: 12px; margin-bottom: 10px; color: #666;">
+                ${personalInfo.email ? `<span style="margin-right: 10px;"><a href="mailto:${personalInfo.email}" style="color: ${branding.primaryColor}; text-decoration: none;">${sanitize(personalInfo.email)}</a></span>` : ''}
+                ${personalInfo.phone ? `<span><a href="tel:${personalInfo.phone.replace(/[^0-9+]/g, '')}" style="color: ${branding.primaryColor}; text-decoration: none;">${sanitize(personalInfo.phone)}</a></span>` : ''}
+              </div>
+              <div style="margin-top: 10px; display: flex;">
+                <div style="margin-right: 10px;">${ctaHTML}</div>
+                <div>${socialIconsHTML}</div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      `;
+      break;
+    case 'compact':
+      templateHTML = `
+        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font}; max-width: 400px; color: #333333;">
+          <tr>
+            <td>
+              <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: bold; font-size: 14px; color: ${branding.primaryColor};">${sanitize(personalInfo.name)}</span>
+                <div>${ctaHTML.replace('padding: 8px 16px', 'padding: 4px 10px').replace('margin-top: 10px', 'margin: 0').replace('font-size: 14px', 'font-size: 12px')}</div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 12px;">
+                  ${personalInfo.email ? `<div><a href="mailto:${personalInfo.email}" style="color: ${branding.primaryColor}; text-decoration: none;">${sanitize(personalInfo.email)}</a></div>` : ''}
+                  ${personalInfo.phone ? `<div><a href="tel:${personalInfo.phone.replace(/[^0-9+]/g, '')}" style="color: ${branding.primaryColor}; text-decoration: none;">${sanitize(personalInfo.phone)}</a></div>` : ''}
+                </div>
+                <div>${socialIconsHTML}</div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      `;
+      break;
     case 'standard':
     default:
       templateHTML = `

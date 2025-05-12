@@ -3,7 +3,7 @@ export type Template = {
   id: string;
   name: string;
   industry: "realtor" | "consultant" | "lawyer" | "coach" | "general";
-  layout: "standard" | "modern" | "minimal" | "bold";
+  layout: "standard" | "modern" | "minimal" | "bold" | "hubspot" | "compact";
   premium: boolean;
   defaultValues: {
     name: string;
