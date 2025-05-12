@@ -27,7 +27,7 @@ export default function CTAForm({ signature, onUpdate }: CTAFormProps) {
     onUpdate(updatedSignature);
   };
 
-  const handleLayoutChange = (value: string) => {
+  const handleLayoutChange = (value: "standard" | "modern" | "minimal" | "bold" | "hubspot" | "compact") => {
     const updatedSignature = {
       ...signature,
       data: {
