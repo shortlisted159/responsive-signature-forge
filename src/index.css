@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -98,4 +99,32 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Email signature preview styles */
+.email-signature-preview {
+  font-family: Arial, sans-serif;
+}
+
+.email-signature-preview img {
+  max-width: 100%;
+  height: auto;
+}
+
+.email-signature-preview table {
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.email-signature-preview td {
+  vertical-align: top;
 }
