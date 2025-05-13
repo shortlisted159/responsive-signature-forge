@@ -1,10 +1,8 @@
-
 import { toast } from "@/components/ui/sonner";
 
-export type SignatureData = {
+export interface SignatureData {
   id: string;
   name: string;
-  templateId: string;
   dateCreated: string;
   dateModified: string;
   data: {
@@ -16,59 +14,37 @@ export type SignatureData = {
       phone: string;
       website: string;
       address: string;
-      photoUrl?: string;
       tagline: string;
+      photoUrl?: string;
     };
     socialLinks: {
       linkedin?: string;
       twitter?: string;
       facebook?: string;
       instagram?: string;
-      [key: string]: string | undefined;
+      github?: string;
+      behance?: string;
     };
     branding: {
-      primaryColor: string;
-      secondaryColor: string;
-      font: string;
-      logoUrl?: string;
+      logo?: string;
+      brandColor: string;
+      textColor: string;
+      fontFamily: string;
+    };
+    settings: {
+      layout: "standard" | "modern" | "minimal" | "bold" | "hubspot" | "compact" | "elegant" | "corporate" | "creative" | "professional";
+      imagePosition: "left" | "right" | "top" | "none";
+      socialIconStyle: "color" | "monochrome" | "circle" | "square";
+      fontSize: "small" | "medium" | "large";
     };
     cta: {
       text: string;
       url: string;
-      color: string;
-    };
-    settings: {
-      imagePosition: "left" | "right" | "top" | "none";
-      socialIconStyle: "color" | "monochrome" | "circle" | "square";
-      layout: "standard" | "modern" | "minimal" | "bold" | "hubspot" | "compact";
-    };
-    premium?: {
-      seasonal?: {
-        enabled: boolean;
-        variations: Array<{
-          startDate: string;
-          endDate: string;
-          message: string;
-          theme: string;
-        }>;
-      };
-      conditionalContent?: {
-        enabled: boolean;
-        blocks: Array<{
-          condition: string;
-          content: string;
-        }>;
-      };
-      tracking?: {
-        enabled: boolean;
-      };
-      calendar?: {
-        enabled: boolean;
-        url: string;
-      };
+      buttonColor?: string;
+      textColor?: string;
     };
   };
-};
+}
 
 const STORAGE_KEY = 'email-signature-data';
 
@@ -166,19 +142,22 @@ export const createNewSignature = (templateId: string, name: string = "Untitled 
       },
       socialLinks: {},
       branding: {
-        primaryColor: "#7E69AB",
-        secondaryColor: "#E5DEFF",
-        font: "Arial, sans-serif"
+        logo?: "",
+        brandColor: "#7E69AB",
+        textColor: "#E5DEFF",
+        fontFamily: "Arial, sans-serif"
+      },
+      settings: {
+        layout: "standard",
+        imagePosition: "left",
+        socialIconStyle: "color",
+        fontSize: "medium"
       },
       cta: {
         text: "Learn More",
         url: "https://www.example.com",
-        color: "#9b87f5"
-      },
-      settings: {
-        imagePosition: "left",
-        socialIconStyle: "color",
-        layout: "standard"
+        buttonColor: "#9b87f5",
+        textColor: "#ffffff"
       }
     }
   };

@@ -18,6 +18,8 @@ export type Template = {
       twitter?: string;
       facebook?: string;
       instagram?: string;
+      github?: string;
+      behance?: string;
     };
     ctaText: string;
     ctaUrl: string;

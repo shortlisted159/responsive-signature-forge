@@ -9,7 +9,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { SignatureData } from "@/lib/signatureStorage";
-import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter, Github, Globe } from "lucide-react";
 
 interface SocialMediaFormProps {
   signature: SignatureData;
@@ -57,6 +57,10 @@ export default function SocialMediaForm({ signature, onUpdate }: SocialMediaForm
         return <Facebook className="h-4 w-4" />;
       case 'instagram':
         return <Instagram className="h-4 w-4" />;
+      case 'github':
+        return <Github className="h-4 w-4" />;
+      case 'behance':
+        return <Globe className="h-4 w-4" />;
       default:
         return null;
     }
@@ -89,7 +93,9 @@ export default function SocialMediaForm({ signature, onUpdate }: SocialMediaForm
           { platform: 'linkedin', label: 'LinkedIn' },
           { platform: 'twitter', label: 'Twitter' },
           { platform: 'facebook', label: 'Facebook' },
-          { platform: 'instagram', label: 'Instagram' }
+          { platform: 'instagram', label: 'Instagram' },
+          { platform: 'github', label: 'GitHub' },
+          { platform: 'behance', label: 'Behance' }
         ].map(({ platform, label }) => (
           <div key={platform} className="space-y-2">
             <Label htmlFor={platform} className="flex items-center gap-2">
