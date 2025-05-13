@@ -9,7 +9,16 @@ import {
 } from "@/components/ui/tabs";
 import { SignatureData } from "@/lib/signatureStorage";
 import { generateSignatureHTML } from "@/lib/signatureGenerator";
-import { Smartphone, Monitor, RefreshCw, Download } from "lucide-react";
+import { 
+  Smartphone, 
+  Monitor, 
+  RefreshCw, 
+  Download, 
+  Copy, 
+  Check,
+  Code 
+} from "lucide-react";
+import { toast } from "sonner";
 
 interface SignaturePreviewProps {
   signature: SignatureData;
@@ -18,6 +27,7 @@ interface SignaturePreviewProps {
 export default function SignaturePreview({ signature }: SignaturePreviewProps) {
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isCopying, setIsCopying] = useState<"html" | "content" | null>(null);
   
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -36,6 +46,25 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+  
+  const handleCopyHTML = () => {
+    navigator.clipboard.writeText(signatureHTML);
+    setIsCopying("html");
+    toast.success("HTML code copied to clipboard");
+    setTimeout(() => setIsCopying(null), 2000);
+  };
+
+  const handleCopyContent = () => {
+    // Create temporary container to extract plain text
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = signatureHTML;
+    const plainText = tempContainer.textContent || '';
+    
+    navigator.clipboard.writeText(plainText);
+    setIsCopying("content");
+    toast.success("Signature text copied to clipboard");
+    setTimeout(() => setIsCopying(null), 2000);
   };
   
   return (
@@ -99,13 +128,35 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
         <p className="text-xs text-muted-foreground">
           This is how your signature will appear in email clients that support HTML.
         </p>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => navigator.clipboard.writeText(signatureHTML)}
-        >
-          Copy HTML
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleCopyContent}
+            className="flex items-center gap-1"
+          >
+            {isCopying === "content" ? (
+              <Check className="h-3.5 w-3.5" />
+            ) : (
+              <Copy className="h-3.5 w-3.5" />
+            )}
+            <span>Copy Text</span>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleCopyHTML}
+            className="flex items-center gap-1"
+          >
+            {isCopying === "html" ? (
+              <Check className="h-3.5 w-3.5" />
+            ) : (
+              <Code className="h-3.5 w-3.5" />
+            )}
+            <span className="sr-only md:not-sr-only md:inline-block">Copy HTML</span>
+          </Button>
+        </div>
       </div>
     </div>
   );

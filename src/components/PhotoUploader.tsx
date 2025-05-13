@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { SignatureData } from "@/lib/signatureStorage";
-import { Upload, Lock, Image } from "lucide-react";
+import { Upload, Image, Crop, Filter, Scissors } from "lucide-react";
 import { 
   Select,
   SelectContent,
@@ -167,12 +167,34 @@ export default function PhotoUploader({ signature, onUpdate }: PhotoUploaderProp
           </div>
         )}
 
-        <div className="mt-2 bg-brand-light-purple/30 rounded-md p-3 flex items-start gap-3">
-          <Lock className="h-4 w-4 text-brand-purple mt-0.5 flex-shrink-0" />
-          <div>
-            <h4 className="text-sm font-medium text-brand-purple mb-1">Premium Features</h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          <div className="border rounded-md p-3 text-center">
+            <div className="flex justify-center mb-2">
+              <Crop className="h-5 w-5 text-brand-purple" />
+            </div>
+            <h4 className="text-sm font-medium mb-1">Cropping</h4>
             <p className="text-xs text-muted-foreground">
-              Upgrade to access advanced photo editing tools like cropping, filters, background removal, and retouching.
+              Crop your photo to fit perfectly in your signature
+            </p>
+          </div>
+          
+          <div className="border rounded-md p-3 text-center">
+            <div className="flex justify-center mb-2">
+              <Filter className="h-5 w-5 text-brand-purple" />
+            </div>
+            <h4 className="text-sm font-medium mb-1">Filters</h4>
+            <p className="text-xs text-muted-foreground">
+              Apply professional filters to enhance your photo
+            </p>
+          </div>
+          
+          <div className="border rounded-md p-3 text-center">
+            <div className="flex justify-center mb-2">
+              <Scissors className="h-5 w-5 text-brand-purple" />
+            </div>
+            <h4 className="text-sm font-medium mb-1">Background Removal</h4>
+            <p className="text-xs text-muted-foreground">
+              Remove background for a clean professional look
             </p>
           </div>
         </div>

@@ -23,16 +23,23 @@ const sanitize = (input: string): string => {
 
 export const generateSignatureHTML = (signature: SignatureData): string => {
   const { personalInfo, socialLinks, branding, cta, settings } = signature.data;
+  
+  // Generate social icons
   const socialIconsHTML = generateSocialIconsHTML(socialLinks, settings.socialIconStyle);
+  
+  // Company logo
   const logoHTML = branding.logoUrl ? `<img src="${branding.logoUrl}" alt="${sanitize(personalInfo.company)} logo" style="max-height: 60px; max-width: 180px; margin-bottom: 10px;">` : '';
-  const photoHTML = personalInfo.photoUrl ? `<img src="${personalInfo.photoUrl}" alt="${sanitize(personalInfo.name)}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; ${settings.imagePosition === 'none' ? 'display: none;' : ''}">` : '';
+  
+  // Profile photo
+  const photoHTML = personalInfo.photoUrl ? 
+    `<img src="${personalInfo.photoUrl}" alt="${sanitize(personalInfo.name)}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; ${settings.imagePosition === 'none' ? 'display: none;' : ''}">` : '';
   
   // CTA button
-  const ctaHTML = `
-    <a href="${sanitizeUrl(cta.url)}" style="display: inline-block; background-color: ${cta.color}; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin-top: 10px; font-family: Arial, sans-serif;">
+  const ctaHTML = cta.text && cta.url ? `
+    <a href="${sanitizeUrl(cta.url)}" style="display: inline-block; background-color: ${cta.color}; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin-top: 10px; font-family: ${branding.font || 'Arial, sans-serif'};">
       ${sanitize(cta.text)}
     </a>
-  `;
+  ` : '';
 
   // Different layouts based on settings
   let templateHTML = '';
@@ -40,7 +47,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
   switch (settings.layout) {
     case 'modern':
       templateHTML = `
-        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font}; max-width: 500px; color: #333333;">
+        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font || 'Arial, sans-serif'}; max-width: 500px; color: #333333;">
           <tr>
             <td style="padding-bottom: 15px;" colspan="2">
               ${logoHTML}
@@ -75,7 +82,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
       break;
     case 'minimal':
       templateHTML = `
-        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font}; max-width: 400px; color: #333333;">
+        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font || 'Arial, sans-serif'}; max-width: 400px; color: #333333;">
           <tr>
             <td>
               <div style="border-left: 3px solid ${branding.primaryColor}; padding-left: 10px;">
@@ -91,6 +98,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
                 </div>
                 ${personalInfo.tagline ? `<div style="font-style: italic; margin: 6px 0; color: #555; font-size: 12px;">${sanitize(personalInfo.tagline)}</div>` : ''}
                 <div style="margin-top: 10px;">${socialIconsHTML}</div>
+                <div>${ctaHTML}</div>
               </div>
             </td>
           </tr>
@@ -99,13 +107,14 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
       break;
     case 'bold':
       templateHTML = `
-        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font}; max-width: 550px; color: white; background-color: ${branding.primaryColor}; padding: 20px; border-radius: 10px;">
+        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font || 'Arial, sans-serif'}; max-width: 550px; color: white; background-color: ${branding.primaryColor}; padding: 20px; border-radius: 10px;">
           <tr>
-            ${settings.imagePosition !== 'none' ? 
+            ${settings.imagePosition !== 'none' && settings.imagePosition !== 'top' ? 
               `<td style="padding-right: 20px; vertical-align: middle; ${settings.imagePosition === 'right' ? 'order: 2;' : ''}">
                 ${photoHTML}
               </td>` : ''}
             <td style="vertical-align: top;">
+              ${settings.imagePosition === 'top' ? `<div style="margin-bottom: 10px; text-align: center;">${photoHTML}</div>` : ''}
               <div style="margin-bottom: 5px;">
                 <span style="font-weight: bold; font-size: 22px;">${sanitize(personalInfo.name)}</span>
               </div>
@@ -121,7 +130,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
               ${personalInfo.tagline ? `<div style="font-style: italic; margin: 10px 0; font-size: 14px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px;">"${sanitize(personalInfo.tagline)}"</div>` : ''}
               <div style="margin-top: 15px;">${socialIconsHTML}</div>
               <div style="margin-top: 15px;">
-                <a href="${sanitizeUrl(cta.url)}" style="display: inline-block; background-color: white; color: ${branding.primaryColor}; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-family: Arial, sans-serif; font-weight: bold;">
+                <a href="${sanitizeUrl(cta.url)}" style="display: inline-block; background-color: white; color: ${branding.primaryColor}; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-family: ${branding.font || 'Arial, sans-serif'}; font-weight: bold;">
                   ${sanitize(cta.text)}
                 </a>
               </div>
@@ -132,7 +141,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
       break;
     case 'hubspot':
       templateHTML = `
-        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font}; max-width: 500px; color: #333333; border: 1px solid #e5e7eb;">
+        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font || 'Arial, sans-serif'}; max-width: 500px; color: #333333; border: 1px solid #e5e7eb;">
           <tr>
             ${settings.imagePosition !== 'none' ? 
               `<td style="width: 30%; padding: 15px; vertical-align: middle; border-right: 1px solid #e5e7eb; text-align: center;">
@@ -149,8 +158,8 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
                 ${personalInfo.email ? `<span style="margin-right: 10px;"><a href="mailto:${personalInfo.email}" style="color: ${branding.primaryColor}; text-decoration: none;">${sanitize(personalInfo.email)}</a></span>` : ''}
                 ${personalInfo.phone ? `<span><a href="tel:${personalInfo.phone.replace(/[^0-9+]/g, '')}" style="color: ${branding.primaryColor}; text-decoration: none;">${sanitize(personalInfo.phone)}</a></span>` : ''}
               </div>
-              <div style="margin-top: 10px; display: flex;">
-                <div style="margin-right: 10px;">${ctaHTML}</div>
+              <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+                <div>${ctaHTML.replace('margin-top: 10px;', '')}</div>
                 <div>${socialIconsHTML}</div>
               </div>
             </td>
@@ -160,7 +169,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
       break;
     case 'compact':
       templateHTML = `
-        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font}; max-width: 400px; color: #333333;">
+        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font || 'Arial, sans-serif'}; max-width: 400px; color: #333333;">
           <tr>
             <td>
               <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
@@ -182,7 +191,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
     case 'standard':
     default:
       templateHTML = `
-        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font}; max-width: 500px; color: #333333;">
+        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font || 'Arial, sans-serif'}; max-width: 500px; color: #333333;">
           <tr>
             ${logoHTML ? `<tr><td colspan="2" style="padding-bottom: 10px;">${logoHTML}</td></tr>` : ''}
           </tr>
@@ -223,11 +232,12 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
   `;
 };
 
+// Generate social media icons based on style
 const generateSocialIconsHTML = (
   socialLinks: Record<string, string | undefined>,
   style: string
 ): string => {
-  if (!socialLinks || Object.keys(socialLinks).length === 0) {
+  if (!socialLinks || Object.keys(socialLinks).filter(key => socialLinks[key]).length === 0) {
     return '';
   }
   
