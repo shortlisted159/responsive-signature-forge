@@ -5,6 +5,7 @@ export interface SignatureData {
   name: string;
   dateCreated: string;
   dateModified: string;
+  templateId?: string;
   data: {
     personalInfo: {
       name: string;
@@ -27,9 +28,13 @@ export interface SignatureData {
     };
     branding: {
       logo?: string;
+      logoUrl?: string; 
       brandColor: string;
       textColor: string;
       fontFamily: string;
+      primaryColor?: string;
+      secondaryColor?: string;
+      font?: string;
     };
     settings: {
       layout: "standard" | "modern" | "minimal" | "bold" | "hubspot" | "compact" | "elegant" | "corporate" | "creative" | "professional";
@@ -42,6 +47,7 @@ export interface SignatureData {
       url: string;
       buttonColor?: string;
       textColor?: string;
+      color?: string;
     };
   };
 }
@@ -142,10 +148,14 @@ export const createNewSignature = (templateId: string, name: string = "Untitled 
       },
       socialLinks: {},
       branding: {
-        logo?: "",
+        logo: "",
         brandColor: "#7E69AB",
         textColor: "#E5DEFF",
-        fontFamily: "Arial, sans-serif"
+        fontFamily: "Arial, sans-serif",
+        // Backward compatibility
+        primaryColor: "#7E69AB",
+        secondaryColor: "#E5DEFF",
+        font: "Arial, sans-serif"
       },
       settings: {
         layout: "standard",
@@ -157,7 +167,9 @@ export const createNewSignature = (templateId: string, name: string = "Untitled 
         text: "Learn More",
         url: "https://www.example.com",
         buttonColor: "#9b87f5",
-        textColor: "#ffffff"
+        textColor: "#ffffff",
+        // Backward compatibility
+        color: "#9b87f5"
       }
     }
   };

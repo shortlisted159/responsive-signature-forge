@@ -27,8 +27,16 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
   // Generate social icons
   const socialIconsHTML = generateSocialIconsHTML(socialLinks, settings.socialIconStyle);
   
+  // Use either new or old property names for backward compatibility
+  const logoUrl = branding.logoUrl || branding.logo;
+  const primaryColor = branding.brandColor || branding.primaryColor;
+  const secondaryColor = branding.textColor || branding.secondaryColor;
+  const fontFamily = branding.fontFamily || branding.font;
+  const buttonColor = cta.buttonColor || cta.color;
+  const ctaTextColor = cta.textColor || '#ffffff';
+  
   // Company logo
-  const logoHTML = branding.logoUrl ? `<img src="${branding.logoUrl}" alt="${sanitize(personalInfo.company)} logo" style="max-height: 60px; max-width: 180px; margin-bottom: 10px;">` : '';
+  const logoHTML = logoUrl ? `<img src="${logoUrl}" alt="${sanitize(personalInfo.company)} logo" style="max-height: 60px; max-width: 180px; margin-bottom: 10px;">` : '';
   
   // Profile photo
   const photoHTML = personalInfo.photoUrl ? 
@@ -36,7 +44,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
   
   // CTA button
   const ctaHTML = cta.text && cta.url ? `
-    <a href="${sanitizeUrl(cta.url)}" style="display: inline-block; background-color: ${cta.color}; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin-top: 10px; font-family: ${branding.font || 'Arial, sans-serif'};">
+    <a href="${sanitizeUrl(cta.url)}" style="display: inline-block; background-color: ${buttonColor}; color: ${ctaTextColor}; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin-top: 10px; font-family: ${fontFamily};">
       ${sanitize(cta.text)}
     </a>
   ` : '';
