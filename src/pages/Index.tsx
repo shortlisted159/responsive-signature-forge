@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { SignatureData, createNewSignature, getSignatures } from "@/lib/signatureStorage";
@@ -9,7 +8,7 @@ import SignaturePreview from "@/components/SignaturePreview";
 import SavedSignatures from "@/components/SavedSignatures";
 import AppLogo from "@/components/AppLogo";
 import ThemeToggle from "@/components/ThemeToggle";
-import { QuestionMarkCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 
 const Index = () => {
   const [step, setStep] = useState<"template" | "editor">("template");
@@ -86,7 +85,7 @@ const Index = () => {
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Button size="sm" variant="outline" className="hidden md:inline-flex mr-2 hover:bg-brand-light-purple hover:text-brand-dark-purple transition-all">
-              <QuestionMarkCircle className="h-4 w-4 mr-1" />
+              <HelpCircle className="h-4 w-4 mr-1" />
               Help
             </Button>
           </div>
