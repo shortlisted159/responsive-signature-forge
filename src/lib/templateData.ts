@@ -2,8 +2,8 @@
 export type Template = {
   id: string;
   name: string;
-  industry: "realtor" | "consultant" | "lawyer" | "coach" | "general";
-  layout: "standard" | "modern" | "minimal" | "bold" | "hubspot" | "compact";
+  industry: "realtor" | "consultant" | "lawyer" | "coach" | "general" | "marketing" | "tech" | "creative" | "finance" | "healthcare";
+  layout: "standard" | "modern" | "minimal" | "bold" | "hubspot" | "compact" | "elegant" | "corporate" | "creative" | "professional";
   premium: boolean; // We'll keep this property but set all to false
   defaultValues: {
     name: string;
@@ -179,5 +179,158 @@ export const templates: Template[] = [
     },
     imagePosition: "right",
     socialIconStyle: "monochrome"
+  },
+  // New templates start here
+  {
+    id: "tech-elegant",
+    name: "Tech Elegant",
+    industry: "tech",
+    layout: "elegant",
+    premium: false,
+    defaultValues: {
+      name: "Robin Chen",
+      title: "Software Engineering Lead",
+      company: "NextGen Technologies",
+      email: "robin@nextgentech.io",
+      phone: "(555) 123-9876",
+      website: "www.nextgentech.io",
+      address: "888 Innovation Park, Silicon Valley, CA",
+      socialLinks: {
+        linkedin: "linkedin.com/in/robinchen",
+        twitter: "twitter.com/robinchen",
+        github: "github.com/robinchen"
+      },
+      ctaText: "View Portfolio",
+      ctaUrl: "https://www.nextgentech.io/robin",
+      tagline: "Building Tomorrow's Technology Today"
+    },
+    imagePosition: "right",
+    socialIconStyle: "monochrome"
+  },
+  {
+    id: "creative-professional",
+    name: "Creative Professional",
+    industry: "creative",
+    layout: "professional",
+    premium: false,
+    defaultValues: {
+      name: "Cameron Blake",
+      title: "Creative Director",
+      company: "Artistry Studios",
+      email: "cameron@artistrystudios.com",
+      phone: "(555) 789-0123",
+      website: "www.artistrystudios.com",
+      address: "42 Gallery Way, Portland, OR",
+      socialLinks: {
+        instagram: "instagram.com/cameronblake",
+        behance: "behance.net/cameronblake",
+        linkedin: "linkedin.com/in/cameronblake"
+      },
+      ctaText: "View My Work",
+      ctaUrl: "https://www.artistrystudios.com/portfolio",
+      tagline: "Where Vision Becomes Reality"
+    },
+    imagePosition: "left",
+    socialIconStyle: "circle"
+  },
+  {
+    id: "finance-corporate",
+    name: "Finance Corporate",
+    industry: "finance",
+    layout: "corporate",
+    premium: false,
+    defaultValues: {
+      name: "Morgan Reynolds, CFA",
+      title: "Senior Financial Advisor",
+      company: "Wealth Architects Group",
+      email: "morgan@wealtharchitects.com",
+      phone: "(555) 567-8901",
+      website: "www.wealtharchitects.com",
+      address: "750 Finance Tower, Manhattan, NY",
+      socialLinks: {
+        linkedin: "linkedin.com/in/morganreynolds",
+      },
+      ctaText: "Schedule Financial Review",
+      ctaUrl: "https://www.wealtharchitects.com/consultation",
+      tagline: "Building Financial Security for Generations"
+    },
+    imagePosition: "none",
+    socialIconStyle: "square"
+  },
+  {
+    id: "marketing-creative",
+    name: "Marketing Creative",
+    industry: "marketing",
+    layout: "creative",
+    premium: false,
+    defaultValues: {
+      name: "Jesse Martinez",
+      title: "Digital Marketing Strategist",
+      company: "Pulse Marketing",
+      email: "jesse@pulsemarketing.co",
+      phone: "(555) 345-6789",
+      website: "www.pulsemarketing.co",
+      address: "303 Trendy Ave, Austin, TX",
+      socialLinks: {
+        linkedin: "linkedin.com/in/jessemartinez",
+        twitter: "twitter.com/jessemktg",
+        instagram: "instagram.com/jessemktg"
+      },
+      ctaText: "Get a Free Audit",
+      ctaUrl: "https://www.pulsemarketing.co/audit",
+      tagline: "Elevating Brands in the Digital Age"
+    },
+    imagePosition: "top",
+    socialIconStyle: "color"
+  },
+  {
+    id: "healthcare-professional",
+    name: "Healthcare Professional",
+    industry: "healthcare",
+    layout: "minimal",
+    premium: false,
+    defaultValues: {
+      name: "Dr. Avery Thompson",
+      title: "Family Medicine Physician",
+      company: "Wellness Medical Group",
+      email: "dr.thompson@wellnessmedical.com",
+      phone: "(555) 234-5678",
+      website: "www.wellnessmedicalgroup.com",
+      address: "475 Health Parkway, Chicago, IL",
+      socialLinks: {
+        linkedin: "linkedin.com/in/dravery",
+      },
+      ctaText: "Schedule Appointment",
+      ctaUrl: "https://www.wellnessmedicalgroup.com/appointments",
+      tagline: "Compassionate Care for the Whole Family"
+    },
+    imagePosition: "left",
+    socialIconStyle: "monochrome"
+  },
+  {
+    id: "tech-modern",
+    name: "Tech Modern",
+    industry: "tech",
+    layout: "modern",
+    premium: false,
+    defaultValues: {
+      name: "Harper Kim",
+      title: "Product Manager",
+      company: "InnovateTech",
+      email: "harper@innovatetech.co",
+      phone: "(555) 456-7890",
+      website: "www.innovatetech.co",
+      address: "Tech Campus, Building 5, San Francisco, CA",
+      socialLinks: {
+        linkedin: "linkedin.com/in/harperkim",
+        twitter: "twitter.com/harperpm",
+        github: "github.com/harperkim"
+      },
+      ctaText: "See Our Products",
+      ctaUrl: "https://www.innovatetech.co/products",
+      tagline: "Innovation at the Speed of Thought"
+    },
+    imagePosition: "right",
+    socialIconStyle: "circle"
   }
 ];

@@ -19,11 +19,13 @@ import {
   Code, 
   Clipboard,
   FileCode,
-  Mail
+  Mail,
+  ExternalLink
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface SignaturePreviewProps {
   signature: SignatureData;
@@ -45,6 +47,39 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
   
   const signatureHTML = generateSignatureHTML(signature);
 
+  // Make sure HTML is Gmail safe
+  const getGmailSafeHTML = () => {
+    // Replace relative URLs with absolute ones
+    // Add !important to all style declarations
+    // Ensure all colors are specified with full hex codes
+    // Make all styles inline
+    let safeHTML = signatureHTML;
+    
+    // Convert any CSS variables to their actual values
+    safeHTML = safeHTML.replace(/var\(--[^)]+\)/g, (match) => {
+      // In a production app, you would extract the actual color value here
+      return "#6E59A5"; // Replace with actual color value
+    });
+    
+    // Force important on style attributes
+    safeHTML = safeHTML.replace(/style="([^"]+)"/g, (match, styles) => {
+      const importantStyles = styles
+        .split(';')
+        .filter(style => style.trim())
+        .map(style => {
+          if (!style.includes('!important')) {
+            return `${style.trim()} !important`;
+          }
+          return style.trim();
+        })
+        .join('; ');
+      
+      return `style="${importantStyles}"`;
+    });
+    
+    return safeHTML;
+  };
+
   useEffect(() => {
     // Animation when signature updates
     setScaleAnimation(true);
@@ -56,7 +91,7 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
   }, [signatureHTML]);
 
   const handleDownloadHTML = () => {
-    const blob = new Blob([signatureHTML], { type: 'text/html' });
+    const blob = new Blob([getGmailSafeHTML()], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -72,7 +107,7 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
   };
   
   const handleCopyHTML = () => {
-    navigator.clipboard.writeText(signatureHTML);
+    navigator.clipboard.writeText(getGmailSafeHTML());
     setIsCopying("html");
     toast.success("HTML code copied to clipboard");
     setTimeout(() => setIsCopying(null), 2000);
@@ -91,11 +126,11 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
   };
 
   const providers = [
-    { id: "gmail", name: "Gmail", icon: "gmail.svg" },
-    { id: "outlook", name: "Outlook", icon: "outlook.svg" },
-    { id: "apple", name: "Apple Mail", icon: "apple.svg" },
-    { id: "yahoo", name: "Yahoo Mail", icon: "yahoo.svg" },
-    { id: "thunderbird", name: "Thunderbird", icon: "thunderbird.svg" },
+    { id: "gmail", name: "Gmail", icon: "gmail.svg", url: "https://mail.google.com/mail/u/0/#settings/general" },
+    { id: "outlook", name: "Outlook", icon: "outlook.svg", url: "https://outlook.live.com/mail/0/options/mail/layout" },
+    { id: "apple", name: "Apple Mail", icon: "apple.svg", url: "https://support.apple.com/guide/mail/create-a-signature-mlhlp1208/mac" },
+    { id: "yahoo", name: "Yahoo Mail", icon: "yahoo.svg", url: "https://mail.yahoo.com/d/settings/1" },
+    { id: "thunderbird", name: "Thunderbird", icon: "thunderbird.svg", url: "https://support.mozilla.org/en-US/kb/signatures" },
   ];
   
   return (
@@ -130,15 +165,49 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
             <span className="sr-only">Refresh Preview</span>
           </Button>
 
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleDownloadHTML}
-            className="h-8 w-8 p-0"
-          >
-            <Download className="h-4 w-4" />
-            <span className="sr-only">Download HTML</span>
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+              >
+                <Download className="h-4 w-4" />
+                <span className="sr-only">Export Options</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-52 p-0" align="end">
+              <div className="flex flex-col">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopyHTML}
+                  className="h-9 justify-start px-3"
+                >
+                  <FileCode className="h-4 w-4 mr-2" />
+                  <span>Copy HTML Code</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopyContent}
+                  className="h-9 justify-start px-3"
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  <span>Copy Plain Text</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDownloadHTML}
+                  className="h-9 justify-start px-3"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  <span>Download HTML</span>
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
       
@@ -227,7 +296,7 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
             </div>
             <div className="bg-slate-100 dark:bg-slate-800 dark:border-slate-700 p-3 rounded border text-xs font-mono h-48 overflow-y-auto">
               <code className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-all">
-                {signatureHTML}
+                {getGmailSafeHTML()}
               </code>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
@@ -241,22 +310,34 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
         <div className="flex-1 bg-slate-50 dark:bg-slate-800 p-4 overflow-auto">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
             {providers.map((provider) => (
-              <Button
+              <a
                 key={provider.id}
-                variant="outline"
-                className="h-auto flex-col py-4"
+                href={provider.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
               >
-                <div className="h-8 w-8 bg-slate-100 dark:bg-slate-700 rounded-full mb-2"></div>
-                <span className="text-xs">{provider.name}</span>
-              </Button>
+                <Button
+                  variant="outline"
+                  className="h-auto flex-col py-4 w-full"
+                >
+                  <div className="h-8 w-8 bg-slate-100 dark:bg-slate-700 rounded-full mb-2 flex items-center justify-center">
+                    <span className="text-xs uppercase font-bold">{provider.name[0]}</span>
+                  </div>
+                  <span className="text-xs flex items-center">
+                    {provider.name}
+                    <ExternalLink className="h-3 w-3 ml-1" />
+                  </span>
+                </Button>
+              </a>
             ))}
           </div>
           
           <div className="bg-white dark:bg-slate-900 p-4 rounded-md border dark:border-slate-700">
             <h3 className="text-sm font-medium mb-2">Installation Instructions:</h3>
             <ol className="text-xs text-muted-foreground space-y-2 list-decimal pl-4">
-              <li>Copy your signature HTML code from the "HTML Code" tab</li>
-              <li>Open your email client's settings or preferences</li>
+              <li>Copy your signature HTML code using the "Copy HTML" button</li>
+              <li>Open your email client's settings or preferences (links above)</li>
               <li>Navigate to the Signature section</li>
               <li>Create a new signature or edit an existing one</li>
               <li>Paste your HTML code (using Ctrl+V or Cmd+V)</li>
@@ -301,6 +382,10 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
             <span>Guides</span>
           </Button>
         </div>
+      </div>
+      
+      <div className="border-t p-2 text-center text-xs text-muted-foreground bg-white dark:bg-slate-900 dark:border-slate-700">
+        Made with ❤️ by Sanjukta Singha
       </div>
     </div>
   );

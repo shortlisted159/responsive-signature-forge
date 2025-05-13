@@ -17,6 +17,7 @@ export default function PhotoCropper({ imageUrl, onProcessedImage, onCancel }: P
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [croppedImage, setCroppedImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!imageUrl) return;
@@ -63,6 +64,10 @@ export default function PhotoCropper({ imageUrl, onProcessedImage, onCancel }: P
       ctx.fill();
       ctx.globalCompositeOperation = 'source-over';
     }
+    
+    // Save the cropped image
+    const croppedImageUrl = canvas.toDataURL("image/png");
+    setCroppedImage(croppedImageUrl);
   };
 
   const handleCropTypeChange = (type: "circle" | "square") => {
@@ -76,18 +81,19 @@ export default function PhotoCropper({ imageUrl, onProcessedImage, onCancel }: P
     
     // Small delay for better UX
     setTimeout(() => {
-      const croppedImageUrl = canvasRef.current?.toDataURL("image/png") || "";
-      onProcessedImage(croppedImageUrl);
+      if (croppedImage) {
+        onProcessedImage(croppedImage);
+      }
       setIsProcessing(false);
     }, 500);
   };
 
   return (
-    <div className="p-4 border rounded-md bg-white mb-4">
+    <div className="p-4 border rounded-md bg-white dark:bg-slate-900 dark:border-slate-700 mb-4">
       <h3 className="text-base font-medium mb-4">Crop Photo</h3>
       
       <div className="flex flex-col items-center mb-4">
-        <div className="bg-slate-50 rounded-md p-4 w-full max-w-xs flex justify-center">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-md p-4 w-full max-w-xs flex justify-center">
           <div className={cn(
             "relative overflow-hidden",
             cropType === "circle" ? "rounded-full" : "rounded-md"

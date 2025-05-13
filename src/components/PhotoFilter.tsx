@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,7 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
   const [contrast, setContrast] = useState(100);
   const [saturation, setSaturation] = useState(100);
   const [isApplying, setIsApplying] = useState(false);
+  const [processedImage, setProcessedImage] = useState<string | null>(null);
 
   const filters = [
     { id: "normal", label: "Normal" },
@@ -51,17 +52,24 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
     return `${baseFilter} brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
   };
 
-  const applyFilter = async () => {
+  useEffect(() => {
+    // Generate preview image when filter settings change
+    if (imageUrl) {
+      generatePreview();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFilter, brightness, contrast, saturation]);
+  
+  const generatePreview = async () => {
     try {
-      setIsApplying(true);
-      
       // Create a new image element
       const img = new Image();
       img.crossOrigin = "anonymous";
-      img.src = imageUrl;
       
-      await new Promise((resolve) => {
+      await new Promise((resolve, reject) => {
         img.onload = resolve;
+        img.onerror = reject;
+        img.src = imageUrl;
       });
       
       // Create canvas and apply filter
@@ -84,33 +92,46 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
       
       // Get the processed image as data URL
       const processedImageUrl = canvas.toDataURL("image/jpeg", 0.9);
-      
-      // Small delay for better UX
-      setTimeout(() => {
-        onProcessedImage(processedImageUrl);
-        setIsApplying(false);
-      }, 500);
+      setProcessedImage(processedImageUrl);
       
     } catch (error) {
-      console.error("Error applying filter:", error);
-      setIsApplying(false);
+      console.error("Error generating preview:", error);
     }
   };
 
+  const applyFilter = () => {
+    setIsApplying(true);
+    
+    // Small delay for better UX
+    setTimeout(() => {
+      if (processedImage) {
+        onProcessedImage(processedImage);
+      }
+      setIsApplying(false);
+    }, 500);
+  };
+
   return (
-    <div className="p-4 border rounded-md bg-white mb-4">
+    <div className="p-4 border rounded-md bg-white dark:bg-slate-900 dark:border-slate-700 mb-4">
       <h3 className="text-base font-medium mb-4">Photo Filters</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="flex flex-col">
           <div className="border rounded-md p-2 mb-2">
-            <div className="aspect-square w-full max-h-40 flex items-center justify-center overflow-hidden bg-slate-100">
-              <img 
-                src={imageUrl} 
-                alt="Filtered preview" 
-                className="max-w-full max-h-full object-contain"
-                style={{ filter: getCurrentFilterStyle() }}
-              />
+            <div className="aspect-square w-full max-h-40 flex items-center justify-center overflow-hidden bg-slate-100 dark:bg-slate-800">
+              {processedImage ? (
+                <img 
+                  src={processedImage} 
+                  alt="Filtered preview" 
+                  className="max-w-full max-h-full object-contain"
+                />
+              ) : (
+                <img 
+                  src={imageUrl} 
+                  alt="Original image" 
+                  className="max-w-full max-h-full object-contain"
+                />
+              )}
             </div>
           </div>
           

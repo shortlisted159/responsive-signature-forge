@@ -13,6 +13,7 @@ interface BackgroundRemoverProps {
 export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel }: BackgroundRemoverProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [processedImage, setProcessedImage] = useState<string | null>(null);
 
   const handleRemoveBackground = async () => {
     try {
@@ -61,13 +62,13 @@ export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel
       
       // Get the processed image as data URL
       const processedImageUrl = canvas.toDataURL("image/png");
+      setProcessedImage(processedImageUrl);
       
       clearInterval(progressInterval);
       setProgress(100);
       
       // Small delay to show 100% progress
       setTimeout(() => {
-        onProcessedImage(processedImageUrl);
         setIsProcessing(false);
         setProgress(0);
       }, 500);
@@ -76,6 +77,12 @@ export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel
       console.error("Error removing background:", error);
       setIsProcessing(false);
       setProgress(0);
+    }
+  };
+
+  const handleApply = () => {
+    if (processedImage) {
+      onProcessedImage(processedImage);
     }
   };
 
@@ -105,6 +112,8 @@ export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel
                 </div>
                 <p className="text-xs mt-1 text-muted-foreground">{progress}%</p>
               </div>
+            ) : processedImage ? (
+              <img src={processedImage} alt="Processed" className="max-w-full max-h-full object-contain" />
             ) : (
               <div className="opacity-50 flex flex-col items-center justify-center h-full">
                 <p className="text-xs text-muted-foreground">Click "Remove Background" to preview</p>
@@ -118,22 +127,32 @@ export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel
         <Button variant="outline" size="sm" onClick={onCancel}>
           Cancel
         </Button>
-        <Button 
-          variant="default" 
-          size="sm" 
-          onClick={handleRemoveBackground}
-          disabled={isProcessing}
-          className={cn(isProcessing && "opacity-80")}
-        >
-          {isProcessing ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            "Remove Background"
-          )}
-        </Button>
+        {processedImage ? (
+          <Button 
+            variant="default" 
+            size="sm" 
+            onClick={handleApply}
+          >
+            Apply Changes
+          </Button>
+        ) : (
+          <Button 
+            variant="default" 
+            size="sm" 
+            onClick={handleRemoveBackground}
+            disabled={isProcessing}
+            className={cn(isProcessing && "opacity-80")}
+          >
+            {isProcessing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Remove Background"
+            )}
+          </Button>
+        )}
       </div>
     </div>
   );

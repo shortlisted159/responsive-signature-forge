@@ -7,7 +7,6 @@ import CompanyBrandingForm from "./CompanyBrandingForm";
 import SocialMediaForm from "./SocialMediaForm";
 import PhotoUploader from "./PhotoUploader";
 import CTAForm from "./CTAForm";
-import ExportOptions from "./ExportOptions";
 
 interface SignatureEditorProps {
   signature: SignatureData;
@@ -23,7 +22,6 @@ export default function SignatureEditor({ signature, onUpdate }: SignatureEditor
     { id: "social", label: "Social" },
     { id: "photo", label: "Photo" },
     { id: "cta", label: "CTA Button" },
-    { id: "export", label: "Export" },
   ];
 
   return (
@@ -66,10 +64,6 @@ export default function SignatureEditor({ signature, onUpdate }: SignatureEditor
           
           <TabsContent value="cta" className="mt-0 h-full">
             <CTAForm signature={signature} onUpdate={onUpdate} />
-          </TabsContent>
-          
-          <TabsContent value="export" className="mt-0 h-full">
-            <ExportOptions signature={signature} />
           </TabsContent>
         </div>
       </Tabs>
