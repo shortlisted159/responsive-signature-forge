@@ -80,24 +80,24 @@ export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel
   };
 
   return (
-    <div className="p-4 border rounded-md bg-white mb-4">
+    <div className="p-4 border rounded-md bg-white dark:bg-slate-900 dark:border-slate-700 mb-4">
       <h3 className="text-base font-medium mb-4">Background Removal</h3>
       
       <div className="flex gap-4 mb-4">
-        <div className="border rounded-md p-2 flex-1">
+        <div className="border rounded-md p-2 flex-1 dark:border-slate-700">
           <p className="text-xs mb-2 text-muted-foreground">Original</p>
-          <div className="aspect-square w-full max-h-40 flex items-center justify-center overflow-hidden bg-slate-100">
+          <div className="aspect-square w-full max-h-40 flex items-center justify-center overflow-hidden bg-slate-100 dark:bg-slate-800">
             <img src={imageUrl} alt="Original" className="max-w-full max-h-full object-contain" />
           </div>
         </div>
         
-        <div className="border rounded-md p-2 flex-1">
+        <div className="border rounded-md p-2 flex-1 dark:border-slate-700">
           <p className="text-xs mb-2 text-muted-foreground">Preview</p>
-          <div className="aspect-square w-full max-h-40 flex items-center justify-center overflow-hidden bg-slate-100 bg-[url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAALEwAACxMBAJqcGAAAADlJREFUOBFjZGBgEAFifOANEwOJgGQDJEjUP2oAwnP/0QAi3QCSQcQCUgMRZNASjAR8YcDIyMgIAKRQBAJBaVXnAAAAAElFTkSuQmCC')]">
+          <div className="aspect-square w-full max-h-40 flex items-center justify-center overflow-hidden bg-slate-100 dark:bg-slate-800 bg-[url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAALEwAACxMBAJqcGAAAADlJREFUOBFjZGBgEAFifOANEwOJgGQDJEjUP2oAwnP/0QAi3QCSQcQCUgMRZNASjAR8YcDIyMgIAKRQBAJBaVXnAAAAAElFTkSuQmCC')]">
             {isProcessing ? (
               <div className="flex flex-col items-center justify-center h-full">
                 <Loader2 className="h-8 w-8 animate-spin mb-2 text-brand-purple" />
-                <div className="w-32 h-2 bg-slate-200 rounded-full">
+                <div className="w-32 h-2 bg-slate-200 dark:bg-slate-700 rounded-full">
                   <div 
                     className="h-full bg-brand-purple rounded-full transition-all duration-300"
                     style={{ width: `${progress}%` }}

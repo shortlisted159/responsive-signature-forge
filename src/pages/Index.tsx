@@ -7,7 +7,9 @@ import TemplateSelector from "@/components/TemplateSelector";
 import SignatureEditor from "@/components/SignatureEditor";
 import SignaturePreview from "@/components/SignaturePreview";
 import SavedSignatures from "@/components/SavedSignatures";
-import { Mail } from "lucide-react";
+import AppLogo from "@/components/AppLogo";
+import ThemeToggle from "@/components/ThemeToggle";
+import { QuestionMarkCircle } from "lucide-react";
 
 const Index = () => {
   const [step, setStep] = useState<"template" | "editor">("template");
@@ -76,18 +78,15 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col dark:bg-slate-950">
       {/* Header */}
-      <header className="border-b bg-white shadow-sm py-3 px-4 sm:px-6">
+      <header className="border-b bg-white dark:bg-slate-900 dark:border-slate-800 shadow-sm py-3 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <AppLogo />
           <div className="flex items-center gap-2">
-            <div className="bg-brand-purple rounded-md p-1.5 transition-all hover:bg-brand-vivid-purple">
-              <Mail className="h-5 w-5 text-white" />
-            </div>
-            <h1 className="text-lg font-bold">Email Signature Generator</h1>
-          </div>
-          <div>
+            <ThemeToggle />
             <Button size="sm" variant="outline" className="hidden md:inline-flex mr-2 hover:bg-brand-light-purple hover:text-brand-dark-purple transition-all">
+              <QuestionMarkCircle className="h-4 w-4 mr-1" />
               Help
             </Button>
           </div>
@@ -103,7 +102,7 @@ const Index = () => {
         ) : (
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-6 max-w-7xl mx-auto w-full p-4 sm:p-6">
             <div className="flex flex-col mb-6 lg:mb-0">
-              <div className="bg-white rounded-md border shadow-sm overflow-hidden flex-1 flex flex-col">
+              <div className="bg-white dark:bg-slate-900 rounded-md border dark:border-slate-700 shadow-sm overflow-hidden flex-1 flex flex-col">
                 {showSavedView ? (
                   <div className="p-4 overflow-y-auto">
                     <SavedSignatures 
@@ -119,7 +118,7 @@ const Index = () => {
                   />
                 )}
                 
-                <div className="border-t p-3 bg-muted/30 flex justify-between">
+                <div className="border-t p-3 bg-muted/30 dark:bg-slate-800/50 flex justify-between">
                   <Button 
                     variant="ghost" 
                     size="sm"
@@ -142,14 +141,14 @@ const Index = () => {
             </div>
             
             <div className="lg:block">
-              <SignaturePreview signature={currentSignature!} />
+              {currentSignature && <SignaturePreview signature={currentSignature} />}
             </div>
           </div>
         )}
       </main>
       
       {/* Footer */}
-      <footer className="border-t py-4 px-6 text-center">
+      <footer className="border-t py-4 px-6 text-center bg-white dark:bg-slate-900 dark:border-slate-800">
         <p className="text-sm text-muted-foreground">
           Email Signature Generator &copy; {new Date().getFullYear()} | Made with ❤️ by Sanjukta Singha
         </p>
