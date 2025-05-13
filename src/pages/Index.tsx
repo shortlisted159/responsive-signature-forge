@@ -81,13 +81,13 @@ const Index = () => {
       <header className="border-b bg-white shadow-sm py-3 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <div className="bg-brand-purple rounded-md p-1.5">
+            <div className="bg-brand-purple rounded-md p-1.5 transition-all hover:bg-brand-vivid-purple">
               <Mail className="h-5 w-5 text-white" />
             </div>
             <h1 className="text-lg font-bold">Email Signature Generator</h1>
           </div>
           <div>
-            <Button size="sm" variant="outline" className="hidden md:inline-flex mr-2">
+            <Button size="sm" variant="outline" className="hidden md:inline-flex mr-2 hover:bg-brand-light-purple hover:text-brand-dark-purple transition-all">
               Help
             </Button>
           </div>
@@ -124,6 +124,7 @@ const Index = () => {
                     variant="ghost" 
                     size="sm"
                     onClick={() => setShowSavedView(!showSavedView)}
+                    className="hover:bg-brand-light-purple hover:text-brand-dark-purple transition-all"
                   >
                     {showSavedView ? "Back to Editor" : "Saved Signatures"}
                   </Button>
@@ -132,6 +133,7 @@ const Index = () => {
                     variant="outline" 
                     size="sm"
                     onClick={handleCreateNew}
+                    className="hover:bg-brand-light-purple hover:text-brand-dark-purple transition-all"
                   >
                     Create New
                   </Button>
@@ -149,11 +151,11 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t py-4 px-6 text-center">
         <p className="text-sm text-muted-foreground">
-          Email Signature Generator &copy; {new Date().getFullYear()}
+          Email Signature Generator &copy; {new Date().getFullYear()} | Made with ❤️ by Sanjukta Singha
         </p>
       </footer>
     </div>
   );
-};
+}
 
 export default Index;

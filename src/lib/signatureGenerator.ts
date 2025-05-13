@@ -55,15 +55,15 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
           </tr>
           <tr>
             ${settings.imagePosition !== 'none' && settings.imagePosition !== 'top' ? 
-              `<td style="padding-right: 15px; vertical-align: middle; ${settings.imagePosition === 'right' ? 'order: 2;' : ''}">
+              `<td style="padding-right: 15px; vertical-align: middle; ${settings.imagePosition === 'right' ? 'padding-left: 15px; padding-right: 0;' : ''}">
                 ${photoHTML}
               </td>` : ''}
             <td style="vertical-align: top;">
-              ${settings.imagePosition === 'top' ? photoHTML : ''}
+              ${settings.imagePosition === 'top' ? `<div style="text-align: center; margin-bottom: 15px;">${photoHTML}</div>` : ''}
               <div style="margin-bottom: 5px;">
                 <span style="font-weight: bold; font-size: 18px; color: ${branding.primaryColor};">${sanitize(personalInfo.name)}</span>
               </div>
-              <div style="margin-bottom: 10px; color: ${branding.secondaryColor};">
+              <div style="margin-bottom: 10px; color: ${branding.secondaryColor || '#666'};">
                 <span style="font-size: 14px;">${sanitize(personalInfo.title)}${personalInfo.company ? ` | ${sanitize(personalInfo.company)}` : ''}</span>
               </div>
               <div style="font-size: 12px; margin-bottom: 10px; color: #666;">
@@ -76,6 +76,10 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
               <div>${ctaHTML}</div>
               <div style="margin-top: 15px;">${socialIconsHTML}</div>
             </td>
+            ${settings.imagePosition === 'right' ? 
+              `<td style="padding-left: 15px; vertical-align: middle;">
+                ${photoHTML}
+              </td>` : ''}
           </tr>
         </table>
       `;
@@ -109,12 +113,12 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
       templateHTML = `
         <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font || 'Arial, sans-serif'}; max-width: 550px; color: white; background-color: ${branding.primaryColor}; padding: 20px; border-radius: 10px;">
           <tr>
-            ${settings.imagePosition !== 'none' && settings.imagePosition !== 'top' ? 
-              `<td style="padding-right: 20px; vertical-align: middle; ${settings.imagePosition === 'right' ? 'order: 2;' : ''}">
+            ${settings.imagePosition === 'left' ? 
+              `<td style="padding-right: 20px; vertical-align: middle; width: 80px;">
                 ${photoHTML}
               </td>` : ''}
             <td style="vertical-align: top;">
-              ${settings.imagePosition === 'top' ? `<div style="margin-bottom: 10px; text-align: center;">${photoHTML}</div>` : ''}
+              ${settings.imagePosition === 'top' ? `<div style="margin-bottom: 15px; text-align: center;">${photoHTML}</div>` : ''}
               <div style="margin-bottom: 5px;">
                 <span style="font-weight: bold; font-size: 22px;">${sanitize(personalInfo.name)}</span>
               </div>
@@ -130,39 +134,49 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
               ${personalInfo.tagline ? `<div style="font-style: italic; margin: 10px 0; font-size: 14px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px;">"${sanitize(personalInfo.tagline)}"</div>` : ''}
               <div style="margin-top: 15px;">${socialIconsHTML}</div>
               <div style="margin-top: 15px;">
+                ${cta.text && cta.url ? `
                 <a href="${sanitizeUrl(cta.url)}" style="display: inline-block; background-color: white; color: ${branding.primaryColor}; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-family: ${branding.font || 'Arial, sans-serif'}; font-weight: bold;">
                   ${sanitize(cta.text)}
-                </a>
+                </a>` : ''}
               </div>
             </td>
+            ${settings.imagePosition === 'right' ? 
+              `<td style="padding-left: 20px; vertical-align: middle; width: 80px;">
+                ${photoHTML}
+              </td>` : ''}
           </tr>
         </table>
       `;
       break;
     case 'hubspot':
       templateHTML = `
-        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font || 'Arial, sans-serif'}; max-width: 500px; color: #333333; border: 1px solid #e5e7eb;">
+        <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font || 'Arial, sans-serif'}; max-width: 500px; color: #33475b; border: 1px solid #e5e7eb;">
           <tr>
-            ${settings.imagePosition !== 'none' ? 
+            ${settings.imagePosition !== 'none' && settings.imagePosition !== 'top' && settings.imagePosition !== 'right' ? 
               `<td style="width: 30%; padding: 15px; vertical-align: middle; border-right: 1px solid #e5e7eb; text-align: center;">
                 ${photoHTML}
               </td>` : ''}
             <td style="vertical-align: top; padding: 15px; ${settings.imagePosition === 'none' ? 'width: 100%;' : ''}">
+              ${settings.imagePosition === 'top' ? `<div style="text-align: center; margin-bottom: 15px;">${photoHTML}</div>` : ''}
               <div style="margin-bottom: 5px;">
-                <span style="font-weight: bold; font-size: 16px; color: ${branding.primaryColor};">${sanitize(personalInfo.name)}</span>
+                <span style="font-weight: bold; font-size: 16px; color: #ff7a59;">${sanitize(personalInfo.name)}</span>
               </div>
-              <div style="margin-bottom: 10px; color: #555;">
+              <div style="margin-bottom: 10px; color: #33475b;">
                 <span style="font-size: 14px;">${sanitize(personalInfo.title)}${personalInfo.company ? ` | ${sanitize(personalInfo.company)}` : ''}</span>
               </div>
-              <div style="font-size: 12px; margin-bottom: 10px; color: #666;">
-                ${personalInfo.email ? `<span style="margin-right: 10px;"><a href="mailto:${personalInfo.email}" style="color: ${branding.primaryColor}; text-decoration: none;">${sanitize(personalInfo.email)}</a></span>` : ''}
-                ${personalInfo.phone ? `<span><a href="tel:${personalInfo.phone.replace(/[^0-9+]/g, '')}" style="color: ${branding.primaryColor}; text-decoration: none;">${sanitize(personalInfo.phone)}</a></span>` : ''}
+              <div style="font-size: 12px; margin-bottom: 10px; color: #33475b;">
+                ${personalInfo.email ? `<span style="margin-right: 10px;"><a href="mailto:${personalInfo.email}" style="color: #ff7a59; text-decoration: none;">${sanitize(personalInfo.email)}</a></span>` : ''}
+                ${personalInfo.phone ? `<span><a href="tel:${personalInfo.phone.replace(/[^0-9+]/g, '')}" style="color: #ff7a59; text-decoration: none;">${sanitize(personalInfo.phone)}</a></span>` : ''}
               </div>
-              <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
-                <div>${ctaHTML.replace('margin-top: 10px;', '')}</div>
-                <div>${socialIconsHTML}</div>
+              <div style="margin-top: 10px; display: flex; align-items: center;">
+                <div>${ctaHTML.replace('background-color', 'background-color: #ff7a59;').replace('margin-top: 10px;', '')}</div>
+                <div style="margin-left: 10px;">${socialIconsHTML}</div>
               </div>
             </td>
+            ${settings.imagePosition === 'right' ? 
+              `<td style="width: 30%; padding: 15px; vertical-align: middle; border-left: 1px solid #e5e7eb; text-align: center;">
+                ${photoHTML}
+              </td>` : ''}
           </tr>
         </table>
       `;
@@ -172,17 +186,32 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
         <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font || 'Arial, sans-serif'}; max-width: 400px; color: #333333;">
           <tr>
             <td>
-              <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: bold; font-size: 14px; color: ${branding.primaryColor};">${sanitize(personalInfo.name)}</span>
-                <div>${ctaHTML.replace('padding: 8px 16px', 'padding: 4px 10px').replace('margin-top: 10px', 'margin: 0').replace('font-size: 14px', 'font-size: 12px')}</div>
+              <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 8px;">
+                <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+                  <tr>
+                    <td style="width: 50%;">
+                      <span style="font-weight: bold; font-size: 14px; color: ${branding.primaryColor};">${sanitize(personalInfo.name)}</span>
+                    </td>
+                    <td style="width: 50%; text-align: right;">
+                      ${cta.text && cta.url ? `
+                      <a href="${sanitizeUrl(cta.url)}" style="display: inline-block; background-color: ${cta.color}; color: white; padding: 4px 10px; text-decoration: none; border-radius: 4px; font-family: ${branding.font || 'Arial, sans-serif'}; font-size: 12px;">
+                        ${sanitize(cta.text)}
+                      </a>` : ''}
+                    </td>
+                  </tr>
+                </table>
               </div>
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="font-size: 12px;">
-                  ${personalInfo.email ? `<div><a href="mailto:${personalInfo.email}" style="color: ${branding.primaryColor}; text-decoration: none;">${sanitize(personalInfo.email)}</a></div>` : ''}
-                  ${personalInfo.phone ? `<div><a href="tel:${personalInfo.phone.replace(/[^0-9+]/g, '')}" style="color: ${branding.primaryColor}; text-decoration: none;">${sanitize(personalInfo.phone)}</a></div>` : ''}
-                </div>
-                <div>${socialIconsHTML}</div>
-              </div>
+              <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+                <tr>
+                  <td style="width: 70%; font-size: 12px;">
+                    ${personalInfo.email ? `<div><a href="mailto:${personalInfo.email}" style="color: ${branding.primaryColor}; text-decoration: none;">${sanitize(personalInfo.email)}</a></div>` : ''}
+                    ${personalInfo.phone ? `<div><a href="tel:${personalInfo.phone.replace(/[^0-9+]/g, '')}" style="color: ${branding.primaryColor}; text-decoration: none;">${sanitize(personalInfo.phone)}</a></div>` : ''}
+                  </td>
+                  <td style="width: 30%; text-align: right;">
+                    ${socialIconsHTML}
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
         </table>
@@ -192,20 +221,18 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
     default:
       templateHTML = `
         <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font || 'Arial, sans-serif'}; max-width: 500px; color: #333333;">
+          ${logoHTML ? `<tr><td colspan="3" style="padding-bottom: 10px;">${logoHTML}</td></tr>` : ''}
           <tr>
-            ${logoHTML ? `<tr><td colspan="2" style="padding-bottom: 10px;">${logoHTML}</td></tr>` : ''}
-          </tr>
-          <tr>
-            ${settings.imagePosition !== 'none' && settings.imagePosition !== 'top' ? 
-              `<td style="padding-right: 15px; vertical-align: top; ${settings.imagePosition === 'right' ? 'order: 2;' : ''}">
+            ${settings.imagePosition === 'left' ? 
+              `<td style="padding-right: 15px; vertical-align: top; width: 80px;">
                 ${photoHTML}
               </td>` : ''}
             <td style="vertical-align: top;">
-              ${settings.imagePosition === 'top' ? `<div style="margin-bottom: 10px;">${photoHTML}</div>` : ''}
+              ${settings.imagePosition === 'top' ? `<div style="margin-bottom: 10px; text-align: center;">${photoHTML}</div>` : ''}
               <div style="margin-bottom: 5px;">
                 <span style="font-weight: bold; font-size: 16px; color: ${branding.primaryColor};">${sanitize(personalInfo.name)}</span>
               </div>
-              <div style="margin-bottom: 5px; color: #666;">
+              <div style="margin-bottom: 5px; color: ${branding.secondaryColor || '#666'};">
                 <span style="font-size: 14px;">${sanitize(personalInfo.title)}</span>
                 ${personalInfo.company ? `<br><span style="font-size: 14px;">${sanitize(personalInfo.company)}</span>` : ''}
               </div>
@@ -219,6 +246,10 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
               <div>${ctaHTML}</div>
               <div style="margin-top: 15px;">${socialIconsHTML}</div>
             </td>
+            ${settings.imagePosition === 'right' ? 
+              `<td style="padding-left: 15px; vertical-align: top; width: 80px;">
+                ${photoHTML}
+              </td>` : ''}
           </tr>
         </table>
       `;

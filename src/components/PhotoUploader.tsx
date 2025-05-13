@@ -11,6 +11,9 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import BackgroundRemover from "./BackgroundRemover";
+import PhotoFilter from "./PhotoFilter";
+import PhotoCropper from "./PhotoCropper";
 
 interface PhotoUploaderProps {
   signature: SignatureData;
@@ -21,7 +24,8 @@ export default function PhotoUploader({ signature, onUpdate }: PhotoUploaderProp
   const photoInputRef = useRef<HTMLInputElement>(null);
   const { personalInfo, settings } = signature.data;
   const [isUploading, setIsUploading] = useState(false);
-
+  const [activeEditor, setActiveEditor] = useState<"none" | "crop" | "filter" | "bgremove">("none");
+  
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -37,21 +41,25 @@ export default function PhotoUploader({ signature, onUpdate }: PhotoUploaderProp
     const reader = new FileReader();
     reader.onload = (event) => {
       if (event.target?.result) {
-        const updatedSignature = {
-          ...signature,
-          data: {
-            ...signature.data,
-            personalInfo: {
-              ...signature.data.personalInfo,
-              photoUrl: event.target.result.toString()
-            }
-          }
-        };
-        onUpdate(updatedSignature);
+        updatePhotoUrl(event.target.result.toString());
         setIsUploading(false);
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  const updatePhotoUrl = (photoUrl: string) => {
+    const updatedSignature = {
+      ...signature,
+      data: {
+        ...signature.data,
+        personalInfo: {
+          ...signature.data.personalInfo,
+          photoUrl
+        }
+      }
+    };
+    onUpdate(updatedSignature);
   };
 
   const handlePositionChange = (position: string) => {
@@ -80,6 +88,15 @@ export default function PhotoUploader({ signature, onUpdate }: PhotoUploaderProp
       }
     };
     onUpdate(updatedSignature);
+  };
+
+  const handleProcessedImage = (newImageUrl: string) => {
+    updatePhotoUrl(newImageUrl);
+    setActiveEditor("none");
+  };
+
+  const handleCancelEdit = () => {
+    setActiveEditor("none");
   };
 
   return (
@@ -167,37 +184,69 @@ export default function PhotoUploader({ signature, onUpdate }: PhotoUploaderProp
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-          <div className="border rounded-md p-3 text-center">
-            <div className="flex justify-center mb-2">
-              <Crop className="h-5 w-5 text-brand-purple" />
-            </div>
-            <h4 className="text-sm font-medium mb-1">Cropping</h4>
-            <p className="text-xs text-muted-foreground">
-              Crop your photo to fit perfectly in your signature
-            </p>
+        {personalInfo.photoUrl && settings.imagePosition !== 'none' && activeEditor === "none" && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <Button 
+              variant="outline" 
+              className="flex flex-col items-center py-4 h-auto"
+              onClick={() => setActiveEditor("crop")}
+            >
+              <Crop className="h-5 w-5 text-brand-purple mb-2" />
+              <h4 className="text-sm font-medium mb-1">Cropping</h4>
+              <p className="text-xs text-muted-foreground">
+                Crop your photo to fit perfectly
+              </p>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="flex flex-col items-center py-4 h-auto"
+              onClick={() => setActiveEditor("filter")}
+            >
+              <Filter className="h-5 w-5 text-brand-purple mb-2" />
+              <h4 className="text-sm font-medium mb-1">Filters</h4>
+              <p className="text-xs text-muted-foreground">
+                Apply professional filters
+              </p>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="flex flex-col items-center py-4 h-auto"
+              onClick={() => setActiveEditor("bgremove")}
+            >
+              <Scissors className="h-5 w-5 text-brand-purple mb-2" />
+              <h4 className="text-sm font-medium mb-1">Background Removal</h4>
+              <p className="text-xs text-muted-foreground">
+                Remove background for a clean look
+              </p>
+            </Button>
           </div>
-          
-          <div className="border rounded-md p-3 text-center">
-            <div className="flex justify-center mb-2">
-              <Filter className="h-5 w-5 text-brand-purple" />
-            </div>
-            <h4 className="text-sm font-medium mb-1">Filters</h4>
-            <p className="text-xs text-muted-foreground">
-              Apply professional filters to enhance your photo
-            </p>
-          </div>
-          
-          <div className="border rounded-md p-3 text-center">
-            <div className="flex justify-center mb-2">
-              <Scissors className="h-5 w-5 text-brand-purple" />
-            </div>
-            <h4 className="text-sm font-medium mb-1">Background Removal</h4>
-            <p className="text-xs text-muted-foreground">
-              Remove background for a clean professional look
-            </p>
-          </div>
-        </div>
+        )}
+        
+        {personalInfo.photoUrl && activeEditor === "crop" && (
+          <PhotoCropper 
+            imageUrl={personalInfo.photoUrl} 
+            onProcessedImage={handleProcessedImage}
+            onCancel={handleCancelEdit}
+          />
+        )}
+        
+        {personalInfo.photoUrl && activeEditor === "filter" && (
+          <PhotoFilter
+            imageUrl={personalInfo.photoUrl}
+            onProcessedImage={handleProcessedImage}
+            onCancel={handleCancelEdit}
+          />
+        )}
+        
+        {personalInfo.photoUrl && activeEditor === "bgremove" && (
+          <BackgroundRemover
+            imageUrl={personalInfo.photoUrl}
+            onProcessedImage={handleProcessedImage}
+            onCancel={handleCancelEdit}
+          />
+        )}
       </div>
     </div>
   );

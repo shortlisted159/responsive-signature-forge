@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
   Tabs, 
@@ -16,9 +16,11 @@ import {
   Download, 
   Copy, 
   Check,
-  Code 
+  Code, 
+  Clipboard
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface SignaturePreviewProps {
   signature: SignatureData;
@@ -28,6 +30,8 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isCopying, setIsCopying] = useState<"html" | "content" | null>(null);
+  const [showToolbar, setShowToolbar] = useState(false);
+  const [scaleAnimation, setScaleAnimation] = useState(false);
   
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -35,6 +39,16 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
   };
   
   const signatureHTML = generateSignatureHTML(signature);
+
+  useEffect(() => {
+    // Animation when signature updates
+    setScaleAnimation(true);
+    const timer = setTimeout(() => {
+      setScaleAnimation(false);
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [signatureHTML]);
 
   const handleDownloadHTML = () => {
     const blob = new Blob([signatureHTML], { type: 'text/html' });
@@ -46,6 +60,10 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    
+    toast.success("Signature HTML file downloaded", {
+      description: "You can now import this file into your email client"
+    });
   };
   
   const handleCopyHTML = () => {
@@ -111,16 +129,60 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
         </div>
       </div>
       
-      <div className="flex flex-1 bg-slate-50 overflow-auto">
+      <div 
+        className="flex flex-1 bg-slate-50 overflow-auto relative"
+        onMouseEnter={() => setShowToolbar(true)}
+        onMouseLeave={() => setShowToolbar(false)}
+      >
         <div className={`flex flex-1 items-center justify-center p-8 ${viewMode === 'desktop' ? 'max-w-full' : 'max-w-[375px] mx-auto'}`}>
-          <div className={`${viewMode === 'mobile' ? 'max-w-[320px] scale-90' : 'max-w-full'} 
-            bg-white p-6 border shadow-sm rounded-md w-full transition-all duration-200`}
+          <div 
+            className={cn(
+              "bg-white p-6 border shadow-sm rounded-md w-full transition-all duration-200",
+              viewMode === 'mobile' ? 'max-w-[320px] scale-90' : 'max-w-full',
+              scaleAnimation && "scale-[1.02] shadow-md"
+            )}
           >
             <div 
               className="email-signature-preview"
               dangerouslySetInnerHTML={{ __html: signatureHTML }} 
             />
           </div>
+        </div>
+        
+        {/* Floating toolbar */}
+        <div 
+          className={cn(
+            "absolute right-4 top-4 flex flex-col gap-2 transition-opacity duration-200",
+            showToolbar ? "opacity-100" : "opacity-0"
+          )}
+        >
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-9 w-9 p-0 rounded-full shadow-sm"
+            onClick={handleCopyContent}
+          >
+            {isCopying === "content" ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
+            <span className="sr-only">Copy Text</span>
+          </Button>
+          
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-9 w-9 p-0 rounded-full shadow-sm"
+            onClick={handleCopyHTML}
+          >
+            {isCopying === "html" ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <Code className="h-4 w-4" />
+            )}
+            <span className="sr-only">Copy HTML</span>
+          </Button>
         </div>
       </div>
       
@@ -138,7 +200,7 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
             {isCopying === "content" ? (
               <Check className="h-3.5 w-3.5" />
             ) : (
-              <Copy className="h-3.5 w-3.5" />
+              <Clipboard className="h-3.5 w-3.5" />
             )}
             <span>Copy Text</span>
           </Button>
@@ -147,14 +209,14 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
             variant="outline" 
             size="sm"
             onClick={handleCopyHTML}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 hidden md:flex"
           >
             {isCopying === "html" ? (
               <Check className="h-3.5 w-3.5" />
             ) : (
               <Code className="h-3.5 w-3.5" />
             )}
-            <span className="sr-only md:not-sr-only md:inline-block">Copy HTML</span>
+            <span>Copy HTML</span>
           </Button>
         </div>
       </div>
