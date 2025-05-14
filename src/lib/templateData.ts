@@ -4,7 +4,7 @@ export type Template = {
   name: string;
   industry: "realtor" | "consultant" | "lawyer" | "coach" | "general" | "marketing" | "tech" | "creative" | "finance" | "healthcare";
   layout: "standard" | "modern" | "minimal" | "bold" | "hubspot" | "compact" | "elegant" | "corporate" | "creative" | "professional";
-  premium: boolean; // We'll keep this property but set all to false
+  premium: boolean;
   defaultValues: {
     name: string;
     title: string;
@@ -31,308 +31,250 @@ export type Template = {
 
 export const templates: Template[] = [
   {
-    id: "realtor-standard",
-    name: "Realtor Standard",
-    industry: "realtor",
+    id: "standard-template",
+    name: "Standard",
+    industry: "general",
     layout: "standard",
     premium: false,
     defaultValues: {
       name: "Alex Johnson",
-      title: "Real Estate Agent",
-      company: "Luxury Home Realty",
-      email: "alex@luxuryhomerealty.com",
+      title: "Marketing Specialist",
+      company: "Company Inc.",
+      email: "alex@company.com",
       phone: "(555) 123-4567",
-      website: "www.luxuryhomerealty.com",
+      website: "www.company.com",
       address: "123 Main St, Anytown, USA",
       socialLinks: {
         linkedin: "linkedin.com/in/alexjohnson",
-        facebook: "facebook.com/alexjohnsonrealty",
-        instagram: "instagram.com/alexjohnsonrealty"
+        twitter: "twitter.com/alexjohnson"
       },
-      ctaText: "View My Listings",
-      ctaUrl: "https://www.luxuryhomerealty.com/listings",
-      tagline: "Helping You Find Your Dream Home"
+      ctaText: "Contact Me",
+      ctaUrl: "https://www.company.com/contact",
+      tagline: "Helping businesses grow"
     },
     imagePosition: "left",
     socialIconStyle: "color"
   },
   {
-    id: "consultant-modern",
-    name: "Consultant Modern",
-    industry: "consultant",
+    id: "modern-template",
+    name: "Modern",
+    industry: "tech",
     layout: "modern",
     premium: false,
     defaultValues: {
       name: "Jordan Smith",
-      title: "Business Strategy Consultant",
-      company: "Smith Consulting Group",
-      email: "jordan@smithconsulting.com",
+      title: "Software Developer",
+      company: "Tech Solutions",
+      email: "jordan@techsolutions.com",
       phone: "(555) 987-6543",
-      website: "www.smithconsulting.com",
+      website: "www.techsolutions.com",
       address: "456 Business Ave, Metropolis, USA",
       socialLinks: {
         linkedin: "linkedin.com/in/jordansmith",
-        twitter: "twitter.com/jordansmith"
+        github: "github.com/jordansmith"
       },
-      ctaText: "Schedule a Consultation",
-      ctaUrl: "https://calendly.com/jordansmith",
-      tagline: "Transforming Challenges into Opportunities"
+      ctaText: "View Portfolio",
+      ctaUrl: "https://www.techsolutions.com/portfolio",
+      tagline: "Building tomorrow's solutions today"
     },
     imagePosition: "right",
     socialIconStyle: "circle"
   },
   {
-    id: "lawyer-minimal",
-    name: "Lawyer Minimal",
-    industry: "lawyer",
+    id: "minimal-template",
+    name: "Minimal",
+    industry: "creative",
     layout: "minimal",
     premium: false,
     defaultValues: {
-      name: "Morgan Lee, Esq.",
-      title: "Attorney at Law",
-      company: "Lee & Associates Legal Group",
-      email: "morgan@leelegal.com",
+      name: "Morgan Lee",
+      title: "Graphic Designer",
+      company: "Creative Studio",
+      email: "morgan@creativestudio.com",
       phone: "(555) 765-4321",
-      website: "www.leelegal.com",
-      address: "789 Court St, Justice City, USA",
+      website: "www.creativestudio.com",
+      address: "789 Art St, Design City, USA",
       socialLinks: {
-        linkedin: "linkedin.com/in/morganlee"
+        behance: "behance.net/morganlee",
+        instagram: "instagram.com/morganlee"
       },
-      ctaText: "Request Legal Consultation",
-      ctaUrl: "https://www.leelegal.com/consultation",
-      tagline: "Dedicated Legal Representation"
+      ctaText: "View Portfolio",
+      ctaUrl: "https://www.creativestudio.com/portfolio",
+      tagline: "Creating visual experiences"
     },
     imagePosition: "none",
     socialIconStyle: "monochrome"
   },
   {
-    id: "coach-bold",
-    name: "Coach Bold",
-    industry: "coach",
+    id: "bold-template",
+    name: "Bold",
+    industry: "marketing",
     layout: "bold",
     premium: false,
     defaultValues: {
       name: "Taylor Williams",
-      title: "Executive Coach & Speaker",
-      company: "Peak Performance Coaching",
-      email: "taylor@peakcoaching.com",
+      title: "Marketing Director",
+      company: "Impact Marketing",
+      email: "taylor@impactmarketing.com",
       phone: "(555) 234-5678",
-      website: "www.peakcoaching.com",
-      address: "101 Motivation Dr, Inspiration, USA",
+      website: "www.impactmarketing.com",
+      address: "101 Brand Dr, Media City, USA",
       socialLinks: {
         linkedin: "linkedin.com/in/taylorwilliams",
-        instagram: "instagram.com/coachtaylor",
-        facebook: "facebook.com/peakcoaching"
+        instagram: "instagram.com/taylorwilliams",
+        twitter: "twitter.com/taylorwilliams"
       },
-      ctaText: "Book a Discovery Call",
-      ctaUrl: "https://www.peakcoaching.com/discovery",
-      tagline: "Unlock Your Full Potential"
+      ctaText: "Let's Talk Strategy",
+      ctaUrl: "https://www.impactmarketing.com/contact",
+      tagline: "Making brands unforgettable"
     },
     imagePosition: "top",
     socialIconStyle: "square"
   },
   {
-    id: "realtor-hubspot",
-    name: "Realtor HubSpot",
-    industry: "realtor",
+    id: "hubspot-template",
+    name: "Hubspot",
+    industry: "consultant",
     layout: "hubspot",
     premium: false,
     defaultValues: {
       name: "Sam Rivera",
-      title: "Luxury Real Estate Specialist",
-      company: "Elite Properties",
-      email: "sam@eliteproperties.com",
+      title: "Business Consultant",
+      company: "Growth Strategies",
+      email: "sam@growthstrategies.com",
       phone: "(555) 555-1234",
-      website: "www.eliteproperties.com",
-      address: "555 Luxury Lane, Beverly Hills, CA",
+      website: "www.growthstrategies.com",
+      address: "555 Consulting Lane, Business Park, USA",
       socialLinks: {
         linkedin: "linkedin.com/in/samrivera",
-        instagram: "instagram.com/samriverarealty",
-        facebook: "facebook.com/elitepropertiessam"
+        twitter: "twitter.com/samrivera"
       },
-      ctaText: "Schedule a Private Showing",
-      ctaUrl: "https://www.eliteproperties.com/showings",
-      tagline: "Exceptional Homes for Exceptional People"
+      ctaText: "Book a Consultation",
+      ctaUrl: "https://www.growthstrategies.com/book",
+      tagline: "Your success is our business"
     },
     imagePosition: "left",
     socialIconStyle: "color"
   },
   {
-    id: "general-compact",
-    name: "General Compact",
+    id: "compact-template",
+    name: "Compact",
     industry: "general",
     layout: "compact",
     premium: false,
     defaultValues: {
       name: "Jamie Doe",
-      title: "Marketing Specialist",
-      company: "Acme Corporation",
-      email: "jamie@acmecorp.com",
+      title: "Project Manager",
+      company: "Solutions Inc.",
+      email: "jamie@solutionsinc.com",
       phone: "(555) 333-2222",
-      website: "www.acmecorp.com",
+      website: "www.solutionsinc.com",
       address: "100 Business Plaza, Enterprise, USA",
       socialLinks: {
-        linkedin: "linkedin.com/in/jamiedoe",
-        twitter: "twitter.com/jamiedoe"
+        linkedin: "linkedin.com/in/jamiedoe"
       },
-      ctaText: "Learn More",
-      ctaUrl: "https://www.acmecorp.com",
-      tagline: "Innovative Solutions for Business Growth"
+      ctaText: "Schedule Meeting",
+      ctaUrl: "https://calendar.solutionsinc.com/jamie",
+      tagline: "Delivering projects on time, every time"
     },
     imagePosition: "right",
     socialIconStyle: "monochrome"
   },
-  // New templates start here
   {
-    id: "tech-elegant",
-    name: "Tech Elegant",
-    industry: "tech",
+    id: "elegant-template",
+    name: "Elegant",
+    industry: "finance",
     layout: "elegant",
     premium: false,
     defaultValues: {
       name: "Robin Chen",
-      title: "Software Engineering Lead",
-      company: "NextGen Technologies",
-      email: "robin@nextgentech.io",
+      title: "Financial Advisor",
+      company: "Wealth Management",
+      email: "robin@wealthmanagement.com",
       phone: "(555) 123-9876",
-      website: "www.nextgentech.io",
-      address: "888 Innovation Park, Silicon Valley, CA",
+      website: "www.wealthmanagement.com",
+      address: "888 Finance Park, Money Valley, USA",
       socialLinks: {
-        linkedin: "linkedin.com/in/robinchen",
-        twitter: "twitter.com/robinchen",
-        github: "github.com/robinchen"
+        linkedin: "linkedin.com/in/robinchen"
       },
-      ctaText: "View Portfolio",
-      ctaUrl: "https://www.nextgentech.io/robin",
-      tagline: "Building Tomorrow's Technology Today"
+      ctaText: "Schedule Consultation",
+      ctaUrl: "https://www.wealthmanagement.com/consultation",
+      tagline: "Securing your financial future"
     },
     imagePosition: "right",
     socialIconStyle: "monochrome"
   },
   {
-    id: "creative-professional",
-    name: "Creative Professional",
-    industry: "creative",
-    layout: "professional",
-    premium: false,
-    defaultValues: {
-      name: "Cameron Blake",
-      title: "Creative Director",
-      company: "Artistry Studios",
-      email: "cameron@artistrystudios.com",
-      phone: "(555) 789-0123",
-      website: "www.artistrystudios.com",
-      address: "42 Gallery Way, Portland, OR",
-      socialLinks: {
-        instagram: "instagram.com/cameronblake",
-        behance: "behance.net/cameronblake",
-        linkedin: "linkedin.com/in/cameronblake"
-      },
-      ctaText: "View My Work",
-      ctaUrl: "https://www.artistrystudios.com/portfolio",
-      tagline: "Where Vision Becomes Reality"
-    },
-    imagePosition: "left",
-    socialIconStyle: "circle"
-  },
-  {
-    id: "finance-corporate",
-    name: "Finance Corporate",
+    id: "corporate-template",
+    name: "Corporate",
     industry: "finance",
     layout: "corporate",
     premium: false,
     defaultValues: {
-      name: "Morgan Reynolds, CFA",
-      title: "Senior Financial Advisor",
-      company: "Wealth Architects Group",
-      email: "morgan@wealtharchitects.com",
+      name: "Morgan Reynolds",
+      title: "Senior Executive",
+      company: "Global Enterprises",
+      email: "morgan@globalenterprises.com",
       phone: "(555) 567-8901",
-      website: "www.wealtharchitects.com",
-      address: "750 Finance Tower, Manhattan, NY",
+      website: "www.globalenterprises.com",
+      address: "750 Corporate Tower, Business District, USA",
       socialLinks: {
-        linkedin: "linkedin.com/in/morganreynolds",
+        linkedin: "linkedin.com/in/morganreynolds"
       },
-      ctaText: "Schedule Financial Review",
-      ctaUrl: "https://www.wealtharchitects.com/consultation",
-      tagline: "Building Financial Security for Generations"
+      ctaText: "Connect with Our Team",
+      ctaUrl: "https://www.globalenterprises.com/team",
+      tagline: "Excellence in business solutions"
     },
     imagePosition: "none",
     socialIconStyle: "square"
   },
   {
-    id: "marketing-creative",
-    name: "Marketing Creative",
-    industry: "marketing",
+    id: "creative-template",
+    name: "Creative",
+    industry: "creative",
     layout: "creative",
     premium: false,
     defaultValues: {
       name: "Jesse Martinez",
-      title: "Digital Marketing Strategist",
-      company: "Pulse Marketing",
-      email: "jesse@pulsemarketing.co",
+      title: "Art Director",
+      company: "Design Collective",
+      email: "jesse@designcollective.co",
       phone: "(555) 345-6789",
-      website: "www.pulsemarketing.co",
-      address: "303 Trendy Ave, Austin, TX",
+      website: "www.designcollective.co",
+      address: "303 Creative Ave, Art District, USA",
       socialLinks: {
-        linkedin: "linkedin.com/in/jessemartinez",
-        twitter: "twitter.com/jessemktg",
-        instagram: "instagram.com/jessemktg"
+        instagram: "instagram.com/jessemartinez",
+        behance: "behance.net/jessemartinez"
       },
-      ctaText: "Get a Free Audit",
-      ctaUrl: "https://www.pulsemarketing.co/audit",
-      tagline: "Elevating Brands in the Digital Age"
+      ctaText: "View My Work",
+      ctaUrl: "https://www.designcollective.co/jesse",
+      tagline: "Where imagination meets design"
     },
     imagePosition: "top",
     socialIconStyle: "color"
   },
   {
-    id: "healthcare-professional",
-    name: "Healthcare Professional",
+    id: "professional-template",
+    name: "Professional",
     industry: "healthcare",
-    layout: "minimal",
+    layout: "professional",
     premium: false,
     defaultValues: {
       name: "Dr. Avery Thompson",
-      title: "Family Medicine Physician",
-      company: "Wellness Medical Group",
-      email: "dr.thompson@wellnessmedical.com",
+      title: "Healthcare Professional",
+      company: "Wellness Center",
+      email: "dr.thompson@wellnesscenter.com",
       phone: "(555) 234-5678",
-      website: "www.wellnessmedicalgroup.com",
-      address: "475 Health Parkway, Chicago, IL",
+      website: "www.wellnesscenter.com",
+      address: "475 Health Parkway, Wellness City, USA",
       socialLinks: {
-        linkedin: "linkedin.com/in/dravery",
+        linkedin: "linkedin.com/in/dravery"
       },
       ctaText: "Schedule Appointment",
-      ctaUrl: "https://www.wellnessmedicalgroup.com/appointments",
-      tagline: "Compassionate Care for the Whole Family"
+      ctaUrl: "https://www.wellnesscenter.com/appointments",
+      tagline: "Your health is our priority"
     },
     imagePosition: "left",
     socialIconStyle: "monochrome"
-  },
-  {
-    id: "tech-modern",
-    name: "Tech Modern",
-    industry: "tech",
-    layout: "modern",
-    premium: false,
-    defaultValues: {
-      name: "Harper Kim",
-      title: "Product Manager",
-      company: "InnovateTech",
-      email: "harper@innovatetech.co",
-      phone: "(555) 456-7890",
-      website: "www.innovatetech.co",
-      address: "Tech Campus, Building 5, San Francisco, CA",
-      socialLinks: {
-        linkedin: "linkedin.com/in/harperkim",
-        twitter: "twitter.com/harperpm",
-        github: "github.com/harperkim"
-      },
-      ctaText: "See Our Products",
-      ctaUrl: "https://www.innovatetech.co/products",
-      tagline: "Innovation at the Speed of Thought"
-    },
-    imagePosition: "right",
-    socialIconStyle: "circle"
   }
 ];

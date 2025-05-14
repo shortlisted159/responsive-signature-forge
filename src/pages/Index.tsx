@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { SignatureData, createNewSignature, getSignatures } from "@/lib/signatureStorage";
@@ -30,7 +31,7 @@ const Index = () => {
 
   const handleTemplateSelect = (template: Template) => {
     // Create a new signature from the selected template
-    const newSignature = createNewSignature(template.id);
+    const newSignature = createNewSignature(template.id, template.name + " Signature");
 
     // Apply template defaults
     const updatedSignature = {
