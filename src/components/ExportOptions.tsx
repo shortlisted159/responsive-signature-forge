@@ -8,16 +8,25 @@ import {
   Copy, 
   Check,
   FileCode,
-  Mail
+  Mail,
+  Info,
+  ExternalLink
 } from "lucide-react";
 import { toast } from "sonner";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface ExportOptionsProps {
   signature: SignatureData;
 }
 
 export default function ExportOptions({ signature }: ExportOptionsProps) {
-  const [isCopying, setIsCopying] = useState<"html" | "content" | null>(null);
+  const [isCopying, setIsCopying] = useState<"html" | "content" | "gmail" | null>(null);
   
   const signatureHTML = generateSignatureHTML(signature);
 
@@ -56,19 +65,41 @@ export default function ExportOptions({ signature }: ExportOptionsProps) {
     setTimeout(() => setIsCopying(null), 2000);
   };
 
+  // New function specifically for Gmail-compatible copy
+  const handleCopyForGmail = () => {
+    // For Gmail, we need to copy the HTML to clipboard
+    // Gmail allows pasting HTML directly into the signature editor
+    navigator.clipboard.writeText(signatureHTML);
+    setIsCopying("gmail");
+    toast.success("Gmail-ready signature copied to clipboard");
+    setTimeout(() => setIsCopying(null), 2000);
+  };
+
   const providers = [
-    { id: "gmail", name: "Gmail", icon: "gmail.svg" },
-    { id: "outlook", name: "Outlook", icon: "outlook.svg" },
-    { id: "apple", name: "Apple Mail", icon: "apple.svg" },
-    { id: "yahoo", name: "Yahoo Mail", icon: "yahoo.svg" },
-    { id: "thunderbird", name: "Thunderbird", icon: "thunderbird.svg" },
+    { id: "gmail", name: "Gmail", icon: "gmail.svg", url: "https://mail.google.com/mail/u/0/#settings/general" },
+    { id: "outlook", name: "Outlook", icon: "outlook.svg", url: "https://outlook.live.com/mail/0/options/mail/layout" },
+    { id: "apple", name: "Apple Mail", icon: "apple.svg", url: "https://support.apple.com/guide/mail/create-a-signature-mlhlp1208/mac" },
+    { id: "yahoo", name: "Yahoo Mail", icon: "yahoo.svg", url: "https://mail.yahoo.com/d/settings/1" },
+    { id: "thunderbird", name: "Thunderbird", icon: "thunderbird.svg", url: "https://support.mozilla.org/en-US/kb/signatures" },
   ];
   
   return (
     <div className="space-y-6">
       <div className="bg-white dark:bg-slate-900 border rounded-md p-4 dark:border-slate-700">
         <div className="flex justify-between items-start mb-4">
-          <h3 className="font-medium">Copy or Download HTML</h3>
+          <h3 className="font-medium flex items-center gap-2">
+            Copy or Download HTML
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full">
+                  <Info className="h-3 w-3" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[300px]">
+                <p>For rich text formatting, use "Copy for Gmail" option and paste directly into Gmail's signature editor.</p>
+              </TooltipContent>
+            </Tooltip>
+          </h3>
           <div className="flex space-x-2">
             <Button
               variant="outline"
@@ -105,6 +136,76 @@ export default function ExportOptions({ signature }: ExportOptionsProps) {
         </div>
       </div>
       
+      <div className="bg-white dark:bg-slate-900 border rounded-md p-4 dark:border-slate-700">
+        <h3 className="font-medium mb-3">Gmail-specific Export</h3>
+        <div className="flex flex-col space-y-4">
+          <div className="flex gap-3 items-center">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleCopyForGmail}
+              className="h-9 gap-1"
+            >
+              {isCopying === "gmail" ? (
+                <>
+                  <Check className="h-4 w-4" /> Copied
+                </>
+              ) : (
+                <>
+                  <Mail className="h-4 w-4" /> Copy for Gmail
+                </>
+              )}
+            </Button>
+            <p className="text-xs text-muted-foreground">This option is optimized for Gmail's signature editor.</p>
+          </div>
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" size="sm" className="w-fit">
+                <Info className="h-4 w-4 mr-2" />
+                Gmail Instructions
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>How to add your signature to Gmail</AlertDialogTitle>
+                <AlertDialogDescription>
+                  <ol className="list-decimal pl-5 space-y-2 mb-4">
+                    <li>Click "Copy for Gmail" above</li>
+                    <li>Go to Gmail Settings (⚙️ icon) → See all settings</li>
+                    <li>Scroll down to the "Signature" section</li>
+                    <li>Create a new signature or edit an existing one</li>
+                    <li>Click in the signature editor field</li>
+                    <li>Press Ctrl+V (or Cmd+V on Mac) to paste your signature</li>
+                    <li>Scroll down and click "Save Changes"</li>
+                  </ol>
+                  <div className="text-sm font-medium mb-1">Important Notes:</div>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>Do <strong>not</strong> use the plain text "Copy Content" option for Gmail</li>
+                    <li>Images may need to be uploaded separately in Gmail</li>
+                    <li>Some formatting might need minor adjustments after pasting</li>
+                  </ul>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Close</AlertDialogCancel>
+                <AlertDialogAction asChild>
+                  <a 
+                    href="https://mail.google.com/mail/u/0/#settings/general" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 px-4"
+                  >
+                    Open Gmail Settings
+                    <ExternalLink className="ml-2 h-4 w-4" />
+                  </a>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+      
       <div className="space-y-4">
         <h3 className="font-medium">Add to Email Client</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
@@ -113,9 +214,17 @@ export default function ExportOptions({ signature }: ExportOptionsProps) {
               key={provider.id}
               variant="outline"
               className="h-auto flex-col py-4"
+              asChild
             >
-              <div className="h-8 w-8 bg-slate-100 dark:bg-slate-700 rounded-full mb-2"></div>
-              <span className="text-xs">{provider.name}</span>
+              <a href={provider.url} target="_blank" rel="noopener noreferrer">
+                <div className="h-8 w-8 bg-slate-100 dark:bg-slate-700 rounded-full mb-2 flex items-center justify-center">
+                  <span className="text-xs uppercase font-bold">{provider.name[0]}</span>
+                </div>
+                <span className="text-xs flex items-center">
+                  {provider.name}
+                  <ExternalLink className="h-3 w-3 ml-1" />
+                </span>
+              </a>
             </Button>
           ))}
         </div>
@@ -124,7 +233,7 @@ export default function ExportOptions({ signature }: ExportOptionsProps) {
       <div className="bg-white dark:bg-slate-900 p-4 rounded-md border dark:border-slate-700">
         <h3 className="text-sm font-medium mb-2">Installation Instructions:</h3>
         <ol className="text-xs text-muted-foreground space-y-2 list-decimal pl-4">
-          <li>Copy your signature HTML code using the "Copy HTML" button above</li>
+          <li>Copy your signature HTML code using the appropriate button above</li>
           <li>Open your email client's settings or preferences</li>
           <li>Navigate to the Signature section</li>
           <li>Create a new signature or edit an existing one</li>
