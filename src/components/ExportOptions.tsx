@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { SignatureData } from "@/lib/signatureStorage";
 import { generateSignatureHTML } from "@/lib/signatureGenerator";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { 
   Download, 
   Copy, 
@@ -27,6 +27,7 @@ interface ExportOptionsProps {
 
 export default function ExportOptions({ signature }: ExportOptionsProps) {
   const [isCopying, setIsCopying] = useState<"html" | "content" | "gmail" | null>(null);
+  const clipboardDivRef = useRef<HTMLDivElement>(null);
   
   const signatureHTML = generateSignatureHTML(signature);
 
@@ -65,14 +66,40 @@ export default function ExportOptions({ signature }: ExportOptionsProps) {
     setTimeout(() => setIsCopying(null), 2000);
   };
 
-  // New function specifically for Gmail-compatible copy
+  // New function specifically for Gmail-compatible copy using execCommand
   const handleCopyForGmail = () => {
-    // For Gmail, we need to copy the HTML to clipboard
-    // Gmail allows pasting HTML directly into the signature editor
-    navigator.clipboard.writeText(signatureHTML);
-    setIsCopying("gmail");
-    toast.success("Gmail-ready signature copied to clipboard");
-    setTimeout(() => setIsCopying(null), 2000);
+    if (!clipboardDivRef.current) return;
+    
+    try {
+      // Insert the HTML into the hidden div
+      clipboardDivRef.current.innerHTML = signatureHTML;
+      
+      // Select the content
+      const range = document.createRange();
+      range.selectNodeContents(clipboardDivRef.current);
+      
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        // Execute the copy command
+        document.execCommand('copy');
+        selection.removeAllRanges();
+        
+        setIsCopying("gmail");
+        toast.success("Gmail-ready signature copied to clipboard", {
+          description: "Now paste directly into Gmail's signature editor"
+        });
+        setTimeout(() => setIsCopying(null), 2000);
+      }
+    } catch (error) {
+      console.error("Error copying for Gmail:", error);
+      toast.error("Failed to copy signature for Gmail");
+      
+      // Fallback to the regular clipboard API
+      navigator.clipboard.writeText(signatureHTML);
+    }
   };
 
   const providers = [
@@ -85,6 +112,15 @@ export default function ExportOptions({ signature }: ExportOptionsProps) {
   
   return (
     <div className="space-y-6">
+      {/* Hidden div for clipboard operations */}
+      <div 
+        ref={clipboardDivRef} 
+        contentEditable="true"
+        suppressContentEditableWarning={true}
+        className="fixed opacity-0 pointer-events-none overflow-hidden"
+        style={{ top: '-9999px', left: '-9999px', height: '1px', width: '1px' }}
+      ></div>
+      
       <div className="bg-white dark:bg-slate-900 border rounded-md p-4 dark:border-slate-700">
         <div className="flex justify-between items-start mb-4">
           <h3 className="font-medium flex items-center gap-2">
@@ -184,6 +220,7 @@ export default function ExportOptions({ signature }: ExportOptionsProps) {
                     <li>Do <strong>not</strong> use the plain text "Copy Content" option for Gmail</li>
                     <li>Images may need to be uploaded separately in Gmail</li>
                     <li>Some formatting might need minor adjustments after pasting</li>
+                    <li>If formatting is lost, try using a different browser (Chrome works best)</li>
                   </ul>
                 </AlertDialogDescription>
               </AlertDialogHeader>
