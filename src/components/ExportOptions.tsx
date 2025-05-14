@@ -28,8 +28,40 @@ interface ExportOptionsProps {
 export default function ExportOptions({ signature }: ExportOptionsProps) {
   const [isCopying, setIsCopying] = useState<"html" | "content" | "gmail" | null>(null);
   const clipboardDivRef = useRef<HTMLDivElement>(null);
+  const previewIframeRef = useRef<HTMLIFrameElement>(null);
   
   const signatureHTML = generateSignatureHTML(signature);
+
+  // Create a full HTML document for the iframe preview and clipboard operations
+  const getFullHTMLDocument = () => {
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Email Signature Preview</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 20px;
+              background-color: white;
+            }
+          </style>
+        </head>
+        <body>
+          ${signatureHTML}
+        </body>
+      </html>
+    `;
+  };
+
+  // Handle iframe loading when it's created
+  const handleIframeLoad = () => {
+    if (previewIframeRef.current) {
+      // Already loaded, no action needed
+    }
+  };
 
   const handleDownloadHTML = () => {
     const blob = new Blob([signatureHTML], { type: 'text/html' });
@@ -66,15 +98,58 @@ export default function ExportOptions({ signature }: ExportOptionsProps) {
     setTimeout(() => setIsCopying(null), 2000);
   };
 
-  // New function specifically for Gmail-compatible copy using execCommand
+  // Improved function for Gmail-compatible copy
   const handleCopyForGmail = () => {
-    if (!clipboardDivRef.current) return;
-    
+    if (!previewIframeRef.current) {
+      // Create iframe if it doesn't exist
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.top = '-9999px';
+      iframe.style.left = '-9999px';
+      iframe.style.width = '500px';
+      iframe.style.height = '500px';
+      iframe.style.opacity = '0';
+      iframe.style.pointerEvents = 'none';
+      
+      document.body.appendChild(iframe);
+      
+      // Ensure the iframe has focus to make copy operation work
+      iframe.focus();
+      
+      // Set the content of the iframe
+      const iframeDocument = iframe.contentDocument;
+      if (iframeDocument) {
+        iframeDocument.open();
+        iframeDocument.write(getFullHTMLDocument());
+        iframeDocument.close();
+        
+        // Select and copy the content
+        iframeDocument.execCommand('selectAll');
+        iframeDocument.execCommand('copy');
+        
+        // Remove the iframe after copying
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 100);
+        
+        setIsCopying("gmail");
+        toast.success("Gmail-ready signature copied to clipboard", {
+          description: "Now paste directly into Gmail's signature editor"
+        });
+        setTimeout(() => setIsCopying(null), 2000);
+      }
+    }
+  };
+
+  // Backup copy method if the iframe approach fails
+  const handleCopyForGmailBackup = () => {
     try {
-      // Insert the HTML into the hidden div
+      if (!clipboardDivRef.current) return;
+      
+      // Set the HTML content in the hidden div
       clipboardDivRef.current.innerHTML = signatureHTML;
       
-      // Select the content
+      // Select all content in the div
       const range = document.createRange();
       range.selectNodeContents(clipboardDivRef.current);
       
@@ -83,22 +158,56 @@ export default function ExportOptions({ signature }: ExportOptionsProps) {
         selection.removeAllRanges();
         selection.addRange(range);
         
-        // Execute the copy command
-        document.execCommand('copy');
-        selection.removeAllRanges();
+        // Execute copy command
+        const successful = document.execCommand('copy');
         
-        setIsCopying("gmail");
-        toast.success("Gmail-ready signature copied to clipboard", {
-          description: "Now paste directly into Gmail's signature editor"
-        });
-        setTimeout(() => setIsCopying(null), 2000);
+        if (!successful) {
+          throw new Error("Copy command failed");
+        }
+        
+        selection.removeAllRanges();
       }
+      
+      setIsCopying("gmail");
+      toast.success("Gmail-ready signature copied to clipboard", {
+        description: "Now paste directly into Gmail's signature editor"
+      });
+      setTimeout(() => setIsCopying(null), 2000);
     } catch (error) {
       console.error("Error copying for Gmail:", error);
-      toast.error("Failed to copy signature for Gmail");
       
-      // Fallback to the regular clipboard API
-      navigator.clipboard.writeText(signatureHTML);
+      // If traditional method fails, try another approach with clipboard API
+      try {
+        // Create a blob with HTML content
+        const htmlBlob = new Blob([signatureHTML], { type: 'text/html' });
+        
+        // Try to use the modern clipboard API with HTML support
+        const clipboardItem = new ClipboardItem({
+          'text/html': htmlBlob
+        });
+        
+        navigator.clipboard.write([clipboardItem]).then(() => {
+          setIsCopying("gmail");
+          toast.success("Gmail-ready signature copied to clipboard", {
+            description: "Now paste directly into Gmail's signature editor"
+          });
+          setTimeout(() => setIsCopying(null), 2000);
+        }).catch(err => {
+          console.error("Clipboard API error:", err);
+          // Last resort: just copy the HTML as text
+          navigator.clipboard.writeText(signatureHTML);
+          toast.warning("Basic HTML copied - formatting may be limited", {
+            description: "For better results, try downloading the HTML file"
+          });
+        });
+      } catch (clipboardError) {
+        console.error("All clipboard methods failed:", clipboardError);
+        // Last resort fallback
+        navigator.clipboard.writeText(signatureHTML);
+        toast.error("Copy operation had issues", {
+          description: "Try downloading the HTML file instead"
+        });
+      }
     }
   };
 
@@ -120,6 +229,14 @@ export default function ExportOptions({ signature }: ExportOptionsProps) {
         className="fixed opacity-0 pointer-events-none overflow-hidden"
         style={{ top: '-9999px', left: '-9999px', height: '1px', width: '1px' }}
       ></div>
+      
+      {/* Hidden iframe for Gmail copy - will be created dynamically */}
+      <iframe
+        ref={previewIframeRef}
+        onLoad={handleIframeLoad}
+        style={{ display: 'none', position: 'fixed', top: '-9999px', left: '-9999px' }}
+        title="Signature Preview"
+      />
       
       <div className="bg-white dark:bg-slate-900 border rounded-md p-4 dark:border-slate-700">
         <div className="flex justify-between items-start mb-4">
@@ -221,6 +338,7 @@ export default function ExportOptions({ signature }: ExportOptionsProps) {
                     <li>Images may need to be uploaded separately in Gmail</li>
                     <li>Some formatting might need minor adjustments after pasting</li>
                     <li>If formatting is lost, try using a different browser (Chrome works best)</li>
+                    <li>As a last resort, download the HTML file, open it in a browser, and copy from there</li>
                   </ul>
                 </AlertDialogDescription>
               </AlertDialogHeader>
