@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -26,6 +25,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import LiveHTMLPreview from "./LiveHTMLPreview";
 
 interface SignaturePreviewProps {
   signature: SignatureData;
@@ -274,35 +274,7 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
 
       {exportView === "code" && (
         <div className="flex-1 bg-slate-50 dark:bg-slate-800 p-4 overflow-auto">
-          <div className="bg-white dark:bg-slate-900 border rounded-md p-4 dark:border-slate-700">
-            <div className="flex justify-between items-start mb-2">
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">HTML Code</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCopyHTML}
-                className="h-7 gap-1"
-              >
-                {isCopying === "html" ? (
-                  <>
-                    <Check className="h-3.5 w-3.5" /> Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3.5 w-3.5" /> Copy Code
-                  </>
-                )}
-              </Button>
-            </div>
-            <div className="bg-slate-100 dark:bg-slate-800 dark:border-slate-700 p-3 rounded border text-xs font-mono h-48 overflow-y-auto">
-              <code className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-all">
-                {getGmailSafeHTML()}
-              </code>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Copy this code and paste it into your email client's signature settings.
-            </p>
-          </div>
+          <LiveHTMLPreview signature={signature} />
         </div>
       )}
 
@@ -336,7 +308,7 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
           <div className="bg-white dark:bg-slate-900 p-4 rounded-md border dark:border-slate-700">
             <h3 className="text-sm font-medium mb-2">Installation Instructions:</h3>
             <ol className="text-xs text-muted-foreground space-y-2 list-decimal pl-4">
-              <li>Copy your signature HTML code using the "Copy HTML" button</li>
+              <li>Go to the HTML tab and use the "Copy from Preview" button</li>
               <li>Open your email client's settings or preferences (links above)</li>
               <li>Navigate to the Signature section</li>
               <li>Create a new signature or edit an existing one</li>
