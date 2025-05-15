@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
@@ -15,8 +15,45 @@ export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
+  const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
+
+  // Load the original image once when component mounts
+  useEffect(() => {
+    const loadOriginalImage = async () => {
+      try {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error("Failed to load original image"));
+          img.src = imageUrl;
+        });
+        
+        setOriginalImage(img);
+      } catch (error) {
+        console.error("Error loading original image:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load the original image",
+          variant: "destructive"
+        });
+      }
+    };
+    
+    loadOriginalImage();
+  }, [imageUrl]);
 
   const handleRemoveBackground = async () => {
+    if (!originalImage) {
+      toast({
+        title: "Error",
+        description: "Image not loaded yet. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     try {
       setIsProcessing(true);
       
@@ -28,16 +65,6 @@ export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel
         });
       }, 500);
 
-      // Create a new image element to process
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.src = imageUrl;
-      
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = () => reject(new Error("Failed to load image"));
-      });
-      
       // Create canvas and remove background
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
@@ -47,11 +74,11 @@ export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel
       }
       
       // Set canvas dimensions
-      canvas.width = img.width;
-      canvas.height = img.height;
+      canvas.width = originalImage.width;
+      canvas.height = originalImage.height;
       
       // Draw the image on the canvas
-      ctx.drawImage(img, 0, 0);
+      ctx.drawImage(originalImage, 0, 0);
       
       // Simple background removal (this is a placeholder - the actual implementation would use AI segmentation)
       ctx.globalCompositeOperation = 'destination-in';
@@ -100,7 +127,13 @@ export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel
         <div className="border rounded-md p-2 flex-1 dark:border-slate-700">
           <p className="text-xs mb-2 text-muted-foreground">Original</p>
           <div className="aspect-square w-full max-h-40 flex items-center justify-center overflow-hidden bg-slate-100 dark:bg-slate-800">
-            <img src={imageUrl} alt="Original" className="max-w-full max-h-full object-contain" />
+            {originalImage ? (
+              <img src={imageUrl} alt="Original" className="max-w-full max-h-full object-contain" />
+            ) : (
+              <div className="flex items-center justify-center h-full w-full">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            )}
           </div>
         </div>
         
@@ -146,7 +179,7 @@ export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel
             variant="default" 
             size="sm" 
             onClick={handleRemoveBackground}
-            disabled={isProcessing}
+            disabled={isProcessing || !originalImage}
             className={cn(isProcessing && "opacity-80")}
           >
             {isProcessing ? (

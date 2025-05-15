@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,7 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
   const [saturation, setSaturation] = useState(100);
   const [isApplying, setIsApplying] = useState(false);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
+  const [originalImageElement, setOriginalImageElement] = useState<HTMLImageElement | null>(null);
 
   const filters = [
     { id: "normal", label: "Normal" },
@@ -53,26 +54,38 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
     return `${baseFilter} brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
   };
 
+  // Load the original image once when component mounts
   useEffect(() => {
-    // Generate preview image when filter settings change
-    if (imageUrl) {
-      generatePreview();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedFilter, brightness, contrast, saturation]);
+    const loadOriginalImage = async () => {
+      try {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error("Failed to load original image"));
+          img.src = imageUrl;
+        });
+        
+        setOriginalImageElement(img);
+      } catch (error) {
+        console.error("Error loading original image:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load the original image",
+          variant: "destructive"
+        });
+      }
+    };
+    
+    loadOriginalImage();
+  }, [imageUrl]);
   
-  const generatePreview = async () => {
+  // Generate preview whenever filter settings or the original image changes
+  const generatePreview = useCallback(() => {
+    if (!originalImageElement) return;
+    
     try {
-      // Create a new image element
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = imageUrl;
-      });
-      
       // Create canvas and apply filter
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
@@ -82,14 +95,14 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
       }
       
       // Set canvas dimensions
-      canvas.width = img.width;
-      canvas.height = img.height;
+      canvas.width = originalImageElement.width;
+      canvas.height = originalImageElement.height;
       
       // Apply CSS filter to canvas
       ctx.filter = getCurrentFilterStyle();
       
       // Draw the image on the canvas
-      ctx.drawImage(img, 0, 0);
+      ctx.drawImage(originalImageElement, 0, 0);
       
       // Get the processed image as data URL
       const processedImageUrl = canvas.toDataURL("image/jpeg", 0.9);
@@ -103,7 +116,13 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
         variant: "destructive"
       });
     }
-  };
+  }, [originalImageElement, selectedFilter, brightness, contrast, saturation]);
+
+  useEffect(() => {
+    if (originalImageElement) {
+      generatePreview();
+    }
+  }, [originalImageElement, generatePreview]);
 
   const applyFilter = () => {
     setIsApplying(true);
@@ -142,11 +161,9 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
                   className="max-w-full max-h-full object-contain"
                 />
               ) : (
-                <img 
-                  src={imageUrl} 
-                  alt="Original image" 
-                  className="max-w-full max-h-full object-contain"
-                />
+                <div className="flex items-center justify-center h-full w-full">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
               )}
             </div>
           </div>
@@ -209,15 +226,23 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
                   htmlFor={`filter-${filter.id}`}
                   className="flex flex-col items-center rounded-md border-2 border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-brand-purple [&:has([data-state=checked])]:border-brand-purple"
                 >
-                  <div className="h-14 w-full mb-1 rounded overflow-hidden">
-                    <img 
-                      src={imageUrl} 
-                      alt={filter.label}
-                      className="w-full h-full object-cover"
-                      style={{ filter: getFilterStyle(filter.id) }}
-                      crossOrigin="anonymous"
-                    />
-                  </div>
+                  {originalImageElement ? (
+                    <div className="h-14 w-full mb-1 rounded overflow-hidden">
+                      <div 
+                        className="w-full h-full"
+                        style={{ 
+                          backgroundImage: `url(${imageUrl})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          filter: getFilterStyle(filter.id)
+                        }}
+                      ></div>
+                    </div>
+                  ) : (
+                    <div className="h-14 w-full mb-1 rounded overflow-hidden bg-slate-100 flex items-center justify-center">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    </div>
+                  )}
                   <span className="text-xs">{filter.label}</span>
                 </Label>
               </div>
@@ -234,7 +259,7 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
           variant="default" 
           size="sm" 
           onClick={applyFilter}
-          disabled={isApplying}
+          disabled={isApplying || !processedImage}
           className={cn(isApplying && "opacity-80")}
         >
           {isApplying ? (
