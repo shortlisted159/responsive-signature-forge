@@ -1,9 +1,8 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/use-toast";
@@ -16,9 +15,6 @@ interface PhotoFilterProps {
 
 export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: PhotoFilterProps) {
   const [selectedFilter, setSelectedFilter] = useState("normal");
-  const [brightness, setBrightness] = useState(100);
-  const [contrast, setContrast] = useState(100);
-  const [saturation, setSaturation] = useState(100);
   const [isApplying, setIsApplying] = useState(false);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [originalImageElement, setOriginalImageElement] = useState<HTMLImageElement | null>(null);
@@ -49,11 +45,6 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
     }
   };
 
-  const getCurrentFilterStyle = () => {
-    const baseFilter = getFilterStyle(selectedFilter);
-    return `${baseFilter} brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
-  };
-
   // Load the original image once when component mounts
   useEffect(() => {
     const loadOriginalImage = async () => {
@@ -81,8 +72,8 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
     loadOriginalImage();
   }, [imageUrl]);
   
-  // Generate preview whenever filter settings or the original image changes
-  const generatePreview = useCallback(() => {
+  // Generate preview whenever filter changes or the original image loads
+  useEffect(() => {
     if (!originalImageElement) return;
     
     try {
@@ -99,7 +90,7 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
       canvas.height = originalImageElement.height;
       
       // Apply CSS filter to canvas
-      ctx.filter = getCurrentFilterStyle();
+      ctx.filter = getFilterStyle(selectedFilter);
       
       // Draw the image on the canvas
       ctx.drawImage(originalImageElement, 0, 0);
@@ -116,13 +107,7 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
         variant: "destructive"
       });
     }
-  }, [originalImageElement, selectedFilter, brightness, contrast, saturation]);
-
-  useEffect(() => {
-    if (originalImageElement) {
-      generatePreview();
-    }
-  }, [originalImageElement, generatePreview]);
+  }, [originalImageElement, selectedFilter]);
 
   const applyFilter = () => {
     setIsApplying(true);
@@ -165,53 +150,6 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
                   <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
               )}
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="brightness">Brightness</Label>
-                <span className="text-xs text-muted-foreground">{brightness}%</span>
-              </div>
-              <Slider
-                id="brightness"
-                min={50}
-                max={150}
-                step={1}
-                value={[brightness]}
-                onValueChange={(value) => setBrightness(value[0])}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="contrast">Contrast</Label>
-                <span className="text-xs text-muted-foreground">{contrast}%</span>
-              </div>
-              <Slider
-                id="contrast"
-                min={50}
-                max={150}
-                step={1}
-                value={[contrast]}
-                onValueChange={(value) => setContrast(value[0])}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="saturation">Saturation</Label>
-                <span className="text-xs text-muted-foreground">{saturation}%</span>
-              </div>
-              <Slider
-                id="saturation"
-                min={0}
-                max={200}
-                step={1}
-                value={[saturation]}
-                onValueChange={(value) => setSaturation(value[0])}
-              />
             </div>
           </div>
         </div>
