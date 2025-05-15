@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 interface BackgroundRemoverProps {
   imageUrl: string;
@@ -32,8 +33,9 @@ export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel
       img.crossOrigin = "anonymous";
       img.src = imageUrl;
       
-      await new Promise((resolve) => {
+      await new Promise((resolve, reject) => {
         img.onload = resolve;
+        img.onerror = () => reject(new Error("Failed to load image"));
       });
       
       // Create canvas and remove background
@@ -52,11 +54,10 @@ export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel
       ctx.drawImage(img, 0, 0);
       
       // Simple background removal (this is a placeholder - the actual implementation would use AI segmentation)
-      // Draw border around the image for demo purposes
+      ctx.globalCompositeOperation = 'destination-in';
       ctx.beginPath();
       ctx.arc(canvas.width / 2, canvas.height / 2, Math.min(canvas.width, canvas.height) / 2.2, 0, Math.PI * 2);
       ctx.closePath();
-      ctx.globalCompositeOperation = 'destination-in';
       ctx.fill();
       ctx.globalCompositeOperation = 'source-over';
       
@@ -77,6 +78,11 @@ export default function BackgroundRemover({ imageUrl, onProcessedImage, onCancel
       console.error("Error removing background:", error);
       setIsProcessing(false);
       setProgress(0);
+      toast({
+        title: "Error",
+        description: "Failed to remove background. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 

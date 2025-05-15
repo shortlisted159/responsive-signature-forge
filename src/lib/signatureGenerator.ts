@@ -284,14 +284,18 @@ const generateSocialIconsHTML = (
     linkedin: 'https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/linkedin.svg',
     twitter: 'https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/twitter.svg',
     facebook: 'https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/facebook.svg',
-    instagram: 'https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/instagram.svg'
+    instagram: 'https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/instagram.svg',
+    github: 'https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/github.svg',
+    behance: 'https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/behance.svg'
   };
   
   const colors: Record<string, string> = {
     linkedin: '#0077B5',
     twitter: '#1DA1F2',
     facebook: '#1877F2',
-    instagram: '#E4405F'
+    instagram: '#E4405F',
+    github: '#181717',
+    behance: '#1769FF'
   };
   
   let iconsHTML = '';

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/use-toast";
 
 interface PhotoFilterProps {
   imageUrl: string;
@@ -96,19 +97,34 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
       
     } catch (error) {
       console.error("Error generating preview:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate filter preview",
+        variant: "destructive"
+      });
     }
   };
 
   const applyFilter = () => {
     setIsApplying(true);
     
-    // Small delay for better UX
-    setTimeout(() => {
-      if (processedImage) {
-        onProcessedImage(processedImage);
-      }
+    try {
+      // Small delay for better UX
+      setTimeout(() => {
+        if (processedImage) {
+          onProcessedImage(processedImage);
+        }
+        setIsApplying(false);
+      }, 500);
+    } catch (error) {
+      console.error("Error applying filter:", error);
       setIsApplying(false);
-    }, 500);
+      toast({
+        title: "Error",
+        description: "Failed to apply filter",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -199,6 +215,7 @@ export default function PhotoFilter({ imageUrl, onProcessedImage, onCancel }: Ph
                       alt={filter.label}
                       className="w-full h-full object-cover"
                       style={{ filter: getFilterStyle(filter.id) }}
+                      crossOrigin="anonymous"
                     />
                   </div>
                   <span className="text-xs">{filter.label}</span>

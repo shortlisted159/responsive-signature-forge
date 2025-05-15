@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 interface PhotoCropperProps {
   imageUrl: string;
@@ -23,6 +24,7 @@ export default function PhotoCropper({ imageUrl, onProcessedImage, onCancel }: P
     if (!imageUrl) return;
     
     const img = new Image();
+    img.crossOrigin = "anonymous";
     img.onload = () => {
       if (canvasRef.current && imageRef.current) {
         imageRef.current.src = imageUrl;
@@ -30,44 +32,60 @@ export default function PhotoCropper({ imageUrl, onProcessedImage, onCancel }: P
         drawImage();
       }
     };
+    img.onerror = () => {
+      toast({
+        title: "Error",
+        description: "Failed to load image for cropping",
+        variant: "destructive"
+      });
+    };
     img.src = imageUrl;
   }, [imageUrl, cropType]);
 
   const drawImage = () => {
     if (!canvasRef.current || !imageRef.current || !imageLoaded) return;
     
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    const img = imageRef.current;
-    
-    if (!ctx) return;
-    
-    const size = Math.min(img.naturalWidth, img.naturalHeight);
-    canvas.width = size;
-    canvas.height = size;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Calculate the centered crop region
-    const sx = (img.naturalWidth - size) / 2;
-    const sy = (img.naturalHeight - size) / 2;
-    
-    // Draw the image
-    ctx.drawImage(img, sx, sy, size, size, 0, 0, size, size);
-    
-    // Apply circular crop if needed
-    if (cropType === "circle") {
-      ctx.globalCompositeOperation = 'destination-in';
-      ctx.beginPath();
-      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalCompositeOperation = 'source-over';
+    try {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+      const img = imageRef.current;
+      
+      if (!ctx) return;
+      
+      const size = Math.min(img.naturalWidth, img.naturalHeight);
+      canvas.width = size;
+      canvas.height = size;
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Calculate the centered crop region
+      const sx = (img.naturalWidth - size) / 2;
+      const sy = (img.naturalHeight - size) / 2;
+      
+      // Draw the image
+      ctx.drawImage(img, sx, sy, size, size, 0, 0, size, size);
+      
+      // Apply circular crop if needed
+      if (cropType === "circle") {
+        ctx.globalCompositeOperation = 'destination-in';
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalCompositeOperation = 'source-over';
+      }
+      
+      // Save the cropped image
+      const croppedImageUrl = canvas.toDataURL("image/png");
+      setCroppedImage(croppedImageUrl);
+    } catch (error) {
+      console.error("Error drawing image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to process image for cropping",
+        variant: "destructive"
+      });
     }
-    
-    // Save the cropped image
-    const croppedImageUrl = canvas.toDataURL("image/png");
-    setCroppedImage(croppedImageUrl);
   };
 
   const handleCropTypeChange = (type: "circle" | "square") => {
@@ -79,13 +97,23 @@ export default function PhotoCropper({ imageUrl, onProcessedImage, onCancel }: P
     
     setIsProcessing(true);
     
-    // Small delay for better UX
-    setTimeout(() => {
-      if (croppedImage) {
-        onProcessedImage(croppedImage);
-      }
+    try {
+      // Small delay for better UX
+      setTimeout(() => {
+        if (croppedImage) {
+          onProcessedImage(croppedImage);
+        }
+        setIsProcessing(false);
+      }, 500);
+    } catch (error) {
+      console.error("Error applying crop:", error);
       setIsProcessing(false);
-    }, 500);
+      toast({
+        title: "Error",
+        description: "Failed to apply crop",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -107,6 +135,7 @@ export default function PhotoCropper({ imageUrl, onProcessedImage, onCancel }: P
               src={imageUrl}
               className="hidden"
               alt="Source"
+              crossOrigin="anonymous"
               onLoad={() => drawImage()}
             />
           </div>
