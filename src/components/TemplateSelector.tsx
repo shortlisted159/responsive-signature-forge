@@ -70,6 +70,8 @@ export default function TemplateSelector({ onTemplateSelect }: TemplateSelectorP
                 <SelectItem value="healthcare">Healthcare</SelectItem>
                 <SelectItem value="marketing">Marketing</SelectItem>
                 <SelectItem value="consultant">Consulting</SelectItem>
+                <SelectItem value="fitness">Fitness</SelectItem>
+                <SelectItem value="wellness">Wellness</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>

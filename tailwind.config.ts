@@ -71,7 +71,10 @@ export default {
 					'hubspot-orange': '#FF7A59',
 					'hubspot-dark': '#33475B',
 					'hubspot-teal': '#00BDA5',
-					'hubspot-blue': '#2E475D'
+					'hubspot-blue': '#2E475D',
+					'dark-green': '#1E5245',
+					'light-green': '#E7F2EF',
+					'medium-green': '#3D8573'
 				}
 			},
 			borderRadius: {

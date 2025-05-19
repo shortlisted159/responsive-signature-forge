@@ -1,8 +1,7 @@
-
 export type Template = {
   id: string;
   name: string;
-  industry: "realtor" | "consultant" | "lawyer" | "coach" | "general" | "marketing" | "tech" | "creative" | "finance" | "healthcare";
+  industry: "realtor" | "consultant" | "lawyer" | "coach" | "general" | "marketing" | "tech" | "creative" | "finance" | "healthcare" | "fitness" | "wellness";
   layout: "standard" | "modern" | "minimal" | "bold" | "hubspot" | "compact" | "elegant" | "corporate" | "creative" | "professional";
   premium: boolean;
   defaultValues: {
@@ -179,6 +178,106 @@ export const templates: Template[] = [
     },
     imagePosition: "right",
     socialIconStyle: "monochrome"
+  },
+  {
+    id: "fitness-template",
+    name: "Fitness Trainer",
+    industry: "fitness",
+    layout: "bold",
+    premium: false,
+    defaultValues: {
+      name: "Chris Parker",
+      title: "Personal Trainer",
+      company: "Elite Fitness",
+      email: "chris@elitefitness.com",
+      phone: "(555) 789-0123",
+      website: "www.elitefitness.com",
+      address: "200 Gym Avenue, Fitness City, USA",
+      socialLinks: {
+        instagram: "instagram.com/chrisparkerfit",
+        facebook: "facebook.com/chrisparkerfit"
+      },
+      ctaText: "Book a Training Session",
+      ctaUrl: "https://www.elitefitness.com/book",
+      tagline: "Transform your body, transform your life"
+    },
+    imagePosition: "left",
+    socialIconStyle: "circle"
+  },
+  {
+    id: "yoga-template",
+    name: "Yoga Instructor",
+    industry: "wellness",
+    layout: "minimal",
+    premium: false,
+    defaultValues: {
+      name: "Serena Ray",
+      title: "Yoga Instructor",
+      company: "Peaceful Mind Yoga",
+      email: "serena@peacefulyoga.com",
+      phone: "(555) 456-7890",
+      website: "www.peacefulyoga.com",
+      address: "108 Zen Street, Harmony Town, USA",
+      socialLinks: {
+        instagram: "instagram.com/serenarayyoga",
+        facebook: "facebook.com/peacefulyoga"
+      },
+      ctaText: "Join a Class",
+      ctaUrl: "https://www.peacefulyoga.com/schedule",
+      tagline: "Find your balance, find your peace"
+    },
+    imagePosition: "right",
+    socialIconStyle: "monochrome"
+  },
+  {
+    id: "nutrition-template",
+    name: "Nutritionist",
+    industry: "wellness",
+    layout: "elegant",
+    premium: false,
+    defaultValues: {
+      name: "Dr. Maya Collins",
+      title: "Clinical Nutritionist",
+      company: "Nourish Wellness",
+      email: "maya@nourishwellness.com",
+      phone: "(555) 234-5678",
+      website: "www.nourishwellness.com",
+      address: "450 Health Avenue, Wellness Valley, USA",
+      socialLinks: {
+        linkedin: "linkedin.com/in/drmayacollins",
+        instagram: "instagram.com/drmayacollins"
+      },
+      ctaText: "Schedule Consultation",
+      ctaUrl: "https://www.nourishwellness.com/consult",
+      tagline: "Food is medicine, eat with purpose"
+    },
+    imagePosition: "left",
+    socialIconStyle: "color"
+  },
+  {
+    id: "crossfit-template",
+    name: "CrossFit Coach",
+    industry: "fitness",
+    layout: "modern",
+    premium: false,
+    defaultValues: {
+      name: "Ryan Torres",
+      title: "Head CrossFit Coach",
+      company: "CrossFit Revolution",
+      email: "ryan@crossfitrevolution.com",
+      phone: "(555) 123-9876",
+      website: "www.crossfitrevolution.com",
+      address: "785 Strength Street, Power City, USA",
+      socialLinks: {
+        instagram: "instagram.com/coachryan",
+        facebook: "facebook.com/crossfitrevolution"
+      },
+      ctaText: "Start Your Journey",
+      ctaUrl: "https://www.crossfitrevolution.com/join",
+      tagline: "Push your limits, find your strength"
+    },
+    imagePosition: "top",
+    socialIconStyle: "square"
   },
   {
     id: "elegant-template",

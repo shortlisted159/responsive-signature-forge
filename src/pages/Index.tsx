@@ -85,7 +85,11 @@ const Index = () => {
           <AppLogo />
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Button size="sm" variant="outline" className="hidden md:inline-flex mr-2 hover:bg-brand-light-purple hover:text-brand-dark-purple transition-all">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="hidden md:inline-flex mr-2 hover:bg-brand-light-green hover:text-brand-dark-green transition-all"
+            >
               <HelpCircle className="h-4 w-4 mr-1" />
               Help
             </Button>
@@ -123,7 +127,7 @@ const Index = () => {
                     variant="ghost" 
                     size="sm"
                     onClick={() => setShowSavedView(!showSavedView)}
-                    className="hover:bg-brand-light-purple hover:text-brand-dark-purple transition-all"
+                    className="hover:bg-brand-light-green hover:text-brand-dark-green transition-all"
                   >
                     {showSavedView ? "Back to Editor" : "Saved Signatures"}
                   </Button>
@@ -132,7 +136,7 @@ const Index = () => {
                     variant="outline" 
                     size="sm"
                     onClick={handleCreateNew}
-                    className="hover:bg-brand-light-purple hover:text-brand-dark-purple transition-all"
+                    className="hover:bg-brand-light-green hover:text-brand-dark-green transition-all"
                   >
                     Create New
                   </Button>

@@ -84,7 +84,7 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
               value={branding.primaryColor}
               onChange={(e) => handleChange('primaryColor', e.target.value)}
               className="flex-1"
-              placeholder="#000000"
+              placeholder="#1E5245"
             />
           </div>
         </div>
@@ -104,7 +104,7 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
               value={branding.secondaryColor}
               onChange={(e) => handleChange('secondaryColor', e.target.value)}
               className="flex-1"
-              placeholder="#CCCCCC"
+              placeholder="#3D8573"
             />
           </div>
         </div>
@@ -115,7 +115,7 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
             value={branding.font} 
             onValueChange={(value) => handleChange('font', value)}
           >
-            <SelectTrigger id="font" className="w-full">
+            <SelectTrigger id="font" className="w-full bg-white dark:bg-slate-800">
               <SelectValue placeholder="Select font" />
             </SelectTrigger>
             <SelectContent position="popper">
@@ -149,6 +149,7 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
                     variant="outline" 
                     size="sm"
                     onClick={() => logoInputRef.current?.click()}
+                    className="hover:bg-brand-light-green hover:text-brand-dark-green transition-all"
                   >
                     Change Logo
                   </Button>
@@ -156,6 +157,7 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
                     variant="outline" 
                     size="sm"
                     onClick={() => handleChange('logoUrl', '')}
+                    className="hover:bg-brand-light-green hover:text-brand-dark-green transition-all"
                   >
                     Remove
                   </Button>
@@ -165,7 +167,7 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
               <Button 
                 variant="ghost"
                 onClick={() => logoInputRef.current?.click()}
-                className="flex flex-col items-center py-8"
+                className="flex flex-col items-center py-8 hover:bg-brand-light-green hover:text-brand-dark-green transition-all"
               >
                 <Upload className="h-10 w-10 mb-2 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground mb-1">Click to upload logo</span>
