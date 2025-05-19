@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { Lock, Upload } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface CompanyBrandingFormProps {
   signature: SignatureData;
@@ -21,6 +22,7 @@ interface CompanyBrandingFormProps {
 export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBrandingFormProps) {
   const { branding } = signature.data;
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const handleChange = (field: string, value: string) => {
     const updatedSignature = {
@@ -34,6 +36,13 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
       }
     };
     onUpdate(updatedSignature);
+    
+    // Add toast feedback
+    toast({
+      title: "Branding updated",
+      description: `${field.charAt(0).toUpperCase() + field.slice(1)} has been updated`,
+      duration: 1500,
+    });
   };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,7 +51,12 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
 
     // Check file size (limit to 1MB)
     if (file.size > 1024 * 1024) {
-      alert("Logo file size should be less than 1MB");
+      toast({
+        title: "File too large",
+        description: "Logo file size should be less than 1MB",
+        variant: "destructive",
+        duration: 3000,
+      });
       return;
     }
 
@@ -50,6 +64,11 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
     reader.onload = (event) => {
       if (event.target?.result) {
         handleChange('logoUrl', event.target.result.toString());
+        toast({
+          title: "Logo updated",
+          description: "Your company logo has been updated",
+          duration: 2000,
+        });
       }
     };
     reader.readAsDataURL(file);
@@ -77,13 +96,13 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
               type="color"
               value={branding.primaryColor}
               onChange={(e) => handleChange('primaryColor', e.target.value)}
-              className="w-12 h-10 p-1"
+              className="w-12 h-10 p-1 interactive-element"
             />
             <Input
               type="text"
               value={branding.primaryColor}
               onChange={(e) => handleChange('primaryColor', e.target.value)}
-              className="flex-1"
+              className="flex-1 interactive-element"
               placeholder="#1E5245"
             />
           </div>
@@ -97,13 +116,13 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
               type="color"
               value={branding.secondaryColor}
               onChange={(e) => handleChange('secondaryColor', e.target.value)}
-              className="w-12 h-10 p-1"
+              className="w-12 h-10 p-1 interactive-element"
             />
             <Input
               type="text"
               value={branding.secondaryColor}
               onChange={(e) => handleChange('secondaryColor', e.target.value)}
-              className="flex-1"
+              className="flex-1 interactive-element"
               placeholder="#3D8573"
             />
           </div>
@@ -115,10 +134,10 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
             value={branding.font} 
             onValueChange={(value) => handleChange('font', value)}
           >
-            <SelectTrigger id="font" className="w-full bg-white dark:bg-slate-800">
+            <SelectTrigger id="font" className="w-full bg-white dark:bg-slate-800 interactive-element">
               <SelectValue placeholder="Select font" />
             </SelectTrigger>
-            <SelectContent position="popper">
+            <SelectContent position="popper" className="glass-effect">
               {fonts.map((font) => (
                 <SelectItem key={font.value} value={font.value} style={{ fontFamily: font.value }}>
                   {font.label}
@@ -136,7 +155,7 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
         
         <div className="space-y-2">
           <Label htmlFor="logo">Company Logo</Label>
-          <div className="flex flex-col items-center border-2 border-dashed border-muted rounded-md p-4 transition-colors hover:border-muted-foreground/50">
+          <div className="flex flex-col items-center border-2 border-dashed border-muted rounded-md p-4 transition-colors hover:border-muted-foreground/50 glass-effect">
             {branding.logoUrl ? (
               <div className="flex flex-col items-center gap-2 w-full">
                 <img
@@ -149,15 +168,22 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
                     variant="outline" 
                     size="sm"
                     onClick={() => logoInputRef.current?.click()}
-                    className="hover:bg-brand-light-green hover:text-brand-dark-green transition-all"
+                    className="interactive-element hover:bg-brand-light-green hover:text-brand-dark-green"
                   >
                     Change Logo
                   </Button>
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => handleChange('logoUrl', '')}
-                    className="hover:bg-brand-light-green hover:text-brand-dark-green transition-all"
+                    onClick={() => {
+                      handleChange('logoUrl', '');
+                      toast({
+                        title: "Logo removed",
+                        description: "Your company logo has been removed",
+                        duration: 2000,
+                      });
+                    }}
+                    className="interactive-element hover:bg-brand-light-green hover:text-brand-dark-green"
                   >
                     Remove
                   </Button>
@@ -167,7 +193,7 @@ export default function CompanyBrandingForm({ signature, onUpdate }: CompanyBran
               <Button 
                 variant="ghost"
                 onClick={() => logoInputRef.current?.click()}
-                className="flex flex-col items-center py-8 hover:bg-brand-light-green hover:text-brand-dark-green transition-all"
+                className="flex flex-col items-center py-8 interactive-element hover:bg-brand-light-green hover:text-brand-dark-green"
               >
                 <Upload className="h-10 w-10 mb-2 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground mb-1">Click to upload logo</span>
