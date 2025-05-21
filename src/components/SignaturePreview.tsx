@@ -59,11 +59,27 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
         throw new Error("Preview iframe not found");
       }
 
-      // Focus the iframe to enable copy operation
-      iframe.contentWindow?.focus();
+      // Clear any existing selection first
+      if (iframe.contentWindow?.getSelection()) {
+        iframe.contentWindow.getSelection()?.removeAllRanges();
+      }
       
-      // Select all content in the iframe
-      iframe.contentDocument.execCommand('selectAll');
+      // Create a new range and select just the signature element
+      const range = iframe.contentDocument.createRange();
+      const signatureElement = iframe.contentDocument.querySelector('.signature-wrapper');
+      
+      if (!signatureElement) {
+        throw new Error("Signature element not found in preview");
+      }
+      
+      range.selectNode(signatureElement);
+      
+      // Apply the selection
+      const selection = iframe.contentWindow?.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
       
       // Copy the selected content
       const success = iframe.contentDocument.execCommand('copy');
@@ -103,7 +119,9 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
           </style>
         </head>
         <body>
-          ${signatureHTML}
+          <div class="signature-wrapper">
+            ${signatureHTML}
+          </div>
         </body>
       </html>
     `;

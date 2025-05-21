@@ -66,6 +66,41 @@ export default function SocialMediaForm({ signature, onUpdate }: SocialMediaForm
     }
   };
 
+  // Style examples
+  const renderStyleExample = () => {
+    const style = settings.socialIconStyle;
+    
+    return (
+      <div className="flex items-center justify-between p-3 bg-muted/40 rounded-md mt-2 mb-4">
+        <div className="text-xs text-muted-foreground">Current style:</div>
+        <div className="flex gap-2">
+          {['linkedin', 'twitter', 'instagram'].map(platform => (
+            platform && (
+              <div 
+                key={platform} 
+                className={`flex items-center justify-center ${style === 'circle' ? 'rounded-full' : style === 'square' ? 'rounded-md' : ''} ${style === 'circle' || style === 'square' ? 'p-1.5 text-white' : ''}`}
+                style={{
+                  backgroundColor: style === 'circle' || style === 'square' 
+                    ? platform === 'linkedin' ? '#0077B5' 
+                      : platform === 'twitter' ? '#1DA1F2' 
+                      : platform === 'instagram' ? '#E4405F' : 'gray' 
+                    : 'transparent',
+                  color: style === 'color' 
+                    ? platform === 'linkedin' ? '#0077B5' 
+                      : platform === 'twitter' ? '#1DA1F2' 
+                      : platform === 'instagram' ? '#E4405F' : 'currentColor'
+                    : style === 'monochrome' ? '#555' : 'white'
+                }}
+              >
+                {renderPlatformIcon(platform)}
+              </div>
+            )
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-medium">Social Media</h2>
@@ -86,6 +121,8 @@ export default function SocialMediaForm({ signature, onUpdate }: SocialMediaForm
             <SelectItem value="square">Square Background</SelectItem>
           </SelectContent>
         </Select>
+        
+        {renderStyleExample()}
       </div>
       
       <div className="grid grid-cols-1 gap-4">
