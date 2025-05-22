@@ -29,13 +29,13 @@ export default function LiveHTMLPreview({ signature }: LiveHTMLPreviewProps) {
         throw new Error("Preview iframe not found");
       }
       
-      // Select the content inside the iframe
-      const signatureElement = iframe.contentDocument.querySelector('.signature-wrapper');
+      // Select ONLY the signature content inside the iframe, not the wrapper div
+      const signatureElement = iframe.contentDocument.querySelector('.signature-wrapper > div');
       if (!signatureElement) {
         throw new Error("Signature element not found in preview");
       }
       
-      // Create a selection range and select the content
+      // Create a selection range and select only the signature content
       const selection = iframe.contentWindow?.getSelection();
       const range = iframe.contentDocument.createRange();
       range.selectNode(signatureElement);
@@ -65,9 +65,29 @@ export default function LiveHTMLPreview({ signature }: LiveHTMLPreviewProps) {
       
       // Fallback method if the primary method fails
       try {
-        // Create a temporary hidden iframe with the signature content
+        // Create a temporary hidden iframe with ONLY the signature content
         const tempIframe = document.createElement('iframe');
-        tempIframe.srcdoc = getFullHtmlDocument();
+        tempIframe.srcdoc = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <title>Email Signature Preview</title>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  margin: 0;
+                  padding: 0;
+                  background-color: white;
+                }
+              </style>
+            </head>
+            <body>
+              ${signatureHTML}
+            </body>
+          </html>
+        `;
         tempIframe.style.position = 'fixed';
         tempIframe.style.left = '-9999px';
         tempIframe.style.top = '-9999px';
@@ -85,13 +105,13 @@ export default function LiveHTMLPreview({ signature }: LiveHTMLPreviewProps) {
               // Focus the iframe to make sure copy works
               tempIframe.contentWindow?.focus();
               
-              // Select all content in the iframe
+              // Select the direct signature content in the iframe (without wrapper)
               const tempDoc = tempIframe.contentDocument;
               if (tempDoc) {
-                const signatureElement = tempDoc.querySelector('.signature-wrapper');
-                if (signatureElement) {
+                const contentBody = tempDoc.body.firstElementChild;
+                if (contentBody) {
                   const tempRange = tempDoc.createRange();
-                  tempRange.selectNode(signatureElement);
+                  tempRange.selectNode(contentBody);
                   
                   const tempSelection = tempIframe.contentWindow?.getSelection();
                   if (tempSelection) {
@@ -133,7 +153,7 @@ export default function LiveHTMLPreview({ signature }: LiveHTMLPreviewProps) {
     }
   };
 
-  // Create a full HTML document for the iframe
+  // Create a full HTML document for the iframe - modified to avoid nested wrappers
   const getFullHtmlDocument = () => {
     return `
       <!DOCTYPE html>
