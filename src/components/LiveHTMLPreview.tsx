@@ -73,7 +73,8 @@ export default function LiveHTMLPreview({ signature }: LiveHTMLPreviewProps) {
         tempIframe.style.top = '-9999px';
         tempIframe.width = '500';
         tempIframe.height = '500';
-        tempIframe.sandbox = 'allow-same-origin';
+        // Fixed: Use setAttribute instead of direct assignment for sandbox
+        tempIframe.setAttribute('sandbox', 'allow-same-origin');
         
         // Add the iframe to the document
         document.body.appendChild(tempIframe);
