@@ -28,34 +28,8 @@ export default function LiveHTMLPreview({ signature }: LiveHTMLPreviewProps) {
         throw new Error("Preview iframe not found");
       }
 
-      // Clear any existing selection first
-      if (iframe.contentWindow?.getSelection()) {
-        iframe.contentWindow.getSelection()?.removeAllRanges();
-      }
-      
-      // Create a new range and select just the signature element
-      const range = iframe.contentDocument.createRange();
-      const signatureElement = iframe.contentDocument.querySelector('.signature-wrapper');
-      
-      if (!signatureElement) {
-        throw new Error("Signature element not found in preview");
-      }
-      
-      range.selectNode(signatureElement);
-      
-      // Apply the selection
-      const selection = iframe.contentWindow?.getSelection();
-      if (selection) {
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
-      
-      // Copy the selected content
-      const success = iframe.contentDocument.execCommand('copy');
-      
-      if (!success) {
-        throw new Error("Copy operation failed");
-      }
+      // Use the Clipboard API to copy the HTML content directly
+      await navigator.clipboard.writeText(signatureHTML);
       
       setIsCopying(true);
       toast.success("Signature copied to clipboard", {
@@ -63,10 +37,54 @@ export default function LiveHTMLPreview({ signature }: LiveHTMLPreviewProps) {
       });
       setTimeout(() => setIsCopying(false), 2000);
     } catch (error) {
-      console.error("Error copying from iframe:", error);
-      toast.error("Could not copy signature", {
-        description: "Try selecting all content in the preview and copying manually"
-      });
+      console.error("Error copying signature:", error);
+      
+      // Fallback method using selection if Clipboard API fails
+      try {
+        const iframe = document.getElementById('signature-preview-iframe') as HTMLIFrameElement;
+        if (!iframe || !iframe.contentDocument) {
+          throw new Error("Preview iframe not found");
+        }
+
+        // Clear any existing selection first
+        if (iframe.contentWindow?.getSelection()) {
+          iframe.contentWindow.getSelection()?.removeAllRanges();
+        }
+        
+        // Create a new range and select just the signature element
+        const range = iframe.contentDocument.createRange();
+        const signatureElement = iframe.contentDocument.querySelector('.signature-wrapper');
+        
+        if (!signatureElement) {
+          throw new Error("Signature element not found in preview");
+        }
+        
+        range.selectNode(signatureElement);
+        
+        // Apply the selection
+        const selection = iframe.contentWindow?.getSelection();
+        if (selection) {
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+        
+        // Copy the selected content
+        const success = iframe.contentDocument.execCommand('copy');
+        
+        if (!success) {
+          throw new Error("Copy operation failed");
+        }
+        
+        setIsCopying(true);
+        toast.success("Signature copied to clipboard", {
+          description: "The formatted signature has been copied and is ready to paste in Gmail"
+        });
+        setTimeout(() => setIsCopying(false), 2000);
+      } catch (fallbackError) {
+        toast.error("Could not copy signature", {
+          description: "Try selecting all content in the preview and copying manually"
+        });
+      }
     }
   };
 
