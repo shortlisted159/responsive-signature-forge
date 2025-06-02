@@ -1,3 +1,4 @@
+
 import { SignatureData } from "./signatureStorage";
 
 // Helper to sanitize URLs
@@ -34,18 +35,24 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
   const buttonColor = cta.buttonColor || cta.color;
   const ctaTextColor = cta.textColor || '#ffffff';
   
-  // Company logo
-  const logoHTML = logoUrl ? `<img src="${logoUrl}" alt="${sanitize(personalInfo.company)} logo" style="max-height: 60px; max-width: 180px; margin-bottom: 10px;">` : '';
+  // Company logo - ensure it's properly formatted for email clients
+  const logoHTML = logoUrl ? `
+    <div style="margin-bottom: 10px;">
+      <img src="${logoUrl}" alt="${sanitize(personalInfo.company)} logo" style="display: block; max-height: 60px; max-width: 180px; height: auto; width: auto;" border="0">
+    </div>
+  ` : '';
   
   // Profile photo
   const photoHTML = personalInfo.photoUrl ? 
-    `<img src="${personalInfo.photoUrl}" alt="${sanitize(personalInfo.name)}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; ${settings.imagePosition === 'none' ? 'display: none;' : ''}">` : '';
+    `<img src="${personalInfo.photoUrl}" alt="${sanitize(personalInfo.name)}" style="display: block; border-radius: 50%; width: 80px; height: 80px; object-fit: cover; ${settings.imagePosition === 'none' ? 'display: none;' : ''}" border="0">` : '';
   
   // CTA button
   const ctaHTML = cta.text && cta.url ? `
-    <a href="${sanitizeUrl(cta.url)}" style="display: inline-block; background-color: ${buttonColor}; color: ${ctaTextColor}; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin-top: 10px; font-family: ${fontFamily};">
-      ${sanitize(cta.text)}
-    </a>
+    <div style="margin-top: 10px;">
+      <a href="${sanitizeUrl(cta.url)}" style="display: inline-block; background-color: ${buttonColor}; color: ${ctaTextColor}; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-family: ${fontFamily}; border: none;">
+        ${sanitize(cta.text)}
+      </a>
+    </div>
   ` : '';
 
   // Different layouts based on settings
@@ -55,14 +62,10 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
     case 'modern':
       templateHTML = `
         <table border="0" cellpadding="0" cellspacing="0" style="font-family: ${branding.font || 'Arial, sans-serif'}; max-width: 500px; color: #333333;">
+          ${logoHTML ? `<tr><td style="padding-bottom: 15px;" colspan="2">${logoHTML}</td></tr>` : ''}
           <tr>
-            <td style="padding-bottom: 15px;" colspan="2">
-              ${logoHTML}
-            </td>
-          </tr>
-          <tr>
-            ${settings.imagePosition !== 'none' && settings.imagePosition !== 'top' ? 
-              `<td style="padding-right: 15px; vertical-align: middle; ${settings.imagePosition === 'right' ? 'padding-left: 15px; padding-right: 0;' : ''}">
+            ${settings.imagePosition !== 'none' && settings.imagePosition !== 'top' && settings.imagePosition !== 'right' ? 
+              `<td style="padding-right: 15px; vertical-align: middle;">
                 ${photoHTML}
               </td>` : ''}
             <td style="vertical-align: top;">
@@ -80,7 +83,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
                 ${personalInfo.address ? `<div>${sanitize(personalInfo.address)}</div>` : ''}
               </div>
               ${personalInfo.tagline ? `<div style="font-style: italic; margin: 10px 0; color: #555; font-size: 13px;">"${sanitize(personalInfo.tagline)}"</div>` : ''}
-              <div>${ctaHTML}</div>
+              ${ctaHTML}
               <div style="margin-top: 15px;">${socialIconsHTML}</div>
             </td>
             ${settings.imagePosition === 'right' ? 
@@ -109,7 +112,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
                 </div>
                 ${personalInfo.tagline ? `<div style="font-style: italic; margin: 6px 0; color: #555; font-size: 12px;">${sanitize(personalInfo.tagline)}</div>` : ''}
                 <div style="margin-top: 10px;">${socialIconsHTML}</div>
-                <div>${ctaHTML}</div>
+                ${ctaHTML}
               </div>
             </td>
           </tr>
@@ -141,7 +144,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
               <div style="margin-top: 15px;">${socialIconsHTML}</div>
               <div style="margin-top: 15px;">
                 ${cta.text && cta.url ? `
-                <a href="${sanitizeUrl(cta.url)}" style="display: inline-block; background-color: white; color: ${branding.primaryColor}; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-family: ${branding.font || 'Arial, sans-serif'}; font-weight: bold;">
+                <a href="${sanitizeUrl(cta.url)}" style="display: inline-block; background-color: white; color: ${branding.primaryColor}; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-family: ${branding.font || 'Arial, sans-serif'}; font-weight: bold; border: none;">
                   ${sanitize(cta.text)}
                 </a>` : ''}
               </div>
@@ -175,7 +178,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
                 ${personalInfo.phone ? `<span><a href="tel:${personalInfo.phone.replace(/[^0-9+]/g, '')}" style="color: #ff7a59; text-decoration: none;">${sanitize(personalInfo.phone)}</a></span>` : ''}
               </div>
               <div style="margin-top: 10px; display: flex; align-items: center;">
-                <div>${ctaHTML.replace('background-color', 'background-color: #ff7a59;').replace('margin-top: 10px;', '')}</div>
+                <div>${ctaHTML.replace('margin-top: 10px;', '')}</div>
                 <div style="margin-left: 10px;">${socialIconsHTML}</div>
               </div>
             </td>
@@ -199,10 +202,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
                       <span style="font-weight: bold; font-size: 14px; color: ${branding.primaryColor};">${sanitize(personalInfo.name)}</span>
                     </td>
                     <td style="width: 50%; text-align: right;">
-                      ${cta.text && cta.url ? `
-                      <a href="${sanitizeUrl(cta.url)}" style="display: inline-block; background-color: ${cta.color}; color: white; padding: 4px 10px; text-decoration: none; border-radius: 4px; font-family: ${branding.font || 'Arial, sans-serif'}; font-size: 12px;">
-                        ${sanitize(cta.text)}
-                      </a>` : ''}
+                      ${ctaHTML.replace('margin-top: 10px;', '')}
                     </td>
                   </tr>
                 </table>
@@ -249,7 +249,7 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
                 ${personalInfo.address ? `<div>Address: ${sanitize(personalInfo.address)}</div>` : ''}
               </div>
               ${personalInfo.tagline ? `<div style="font-style: italic; margin: 8px 0; color: #555; font-size: 13px;">"${sanitize(personalInfo.tagline)}"</div>` : ''}
-              <div>${ctaHTML}</div>
+              ${ctaHTML}
               <div style="margin-top: 15px;">${socialIconsHTML}</div>
             </td>
             ${settings.imagePosition === 'right' ? 
@@ -262,12 +262,10 @@ export const generateSignatureHTML = (signature: SignatureData): string => {
       break;
   }
   
-  // Return the signature HTML directly without additional wrapper div
-  // This prevents duplication when copying and pasting
   return templateHTML;
 };
 
-// Generate social media icons based on style - Email-safe version
+// Generate social media icons based on style - Email-safe version with proper SVG data
 const generateSocialIconsHTML = (
   socialLinks: Record<string, string | undefined>,
   style: string
@@ -276,30 +274,30 @@ const generateSocialIconsHTML = (
     return '';
   }
 
-  // Base64 encoded SVG icons to avoid external dependencies - Fixed icons with proper encoding
+  // Properly encoded SVG icons for email compatibility
   const iconData: Record<string, { svg: string, color: string }> = {
     linkedin: {
-      svg: `PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjAuNDQ3IDIwLjQ1MmgtMy41NTR2LTUuNTY5YzAtMS4zMjgtLjAyNy0zLjAzNy0xLjg1Mi0zLjAzNy0xLjg1MyAwLTIuMTM2IDEuNDQ1LTIuMTM2IDIuOTM5djUuNjY3SDkuMzUxVjloMy40MTR2MS41NjFoLjA0NmMuNDc3LS45IDEuNjM3LTEuODUgMy4zNy0xLjg1IDMuNjAxIDAgNC4yNjcgMi4zNyA0LjI2NyA1LjQ1NXY2LjI4NnpNNS4zMzcgNy40MzNjLTEuMTQ0IDAtMi4wNjMtLjkyNi0yLjA2My0yLjA2NSAwLTEuMTM4LjkyLTIuMDYzIDIuMDY1LTIuMDYzIDEuMTQgMCAyLjA2NC45MjUgMi4wNjQgMi4wNjMgMCAxLjEzOS0uOTI1IDIuMDY1LTIuMDY0IDIuMDY1em0xLjc4MiAxMy4wMTlIMy41NTVWOWgzLjU2NHYxMS40NTJ6TTIyLjIyNSAwSDEuNzcxQy43OTIgMCAwIC43NzQgMCAxLjcyOXYyMC41NDJDMCAyMy4yMjcuNzkyIDI0IDEuNzcxIDI0aDIwLjQ1MUMyMy4yIDI0IDI0IDIzLjIyNyAyNCAyMi4yNzFWMS43MjlDMjQgLjc3NCAyMy4yIDAgMjIuMjIyIDBoLjAwM3oiLz48L3N2Zz4=`,
+      svg: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjMDA3N0I1Ij48cGF0aCBkPSJNMjAuNDQ3IDIwLjQ1MmgtMy41NTR2LTUuNTY5YzAtMS4zMjgtLjAyNy0zLjAzNy0xLjg1Mi0zLjAzNy0xLjg1MyAwLTIuMTM2IDEuNDQ1LTIuMTM2IDIuOTM5djUuNjY3SDkuMzUxVjloMy40MTR2MS41NjFoLjA0NmMuNDc3LS45IDEuNjM3LTEuODUgMy4zNy0xLjg1IDMuNjAxIDAgNC4yNjcgMi4zNyA0LjI2NyA1LjQ1NXY2LjI4NnpNNS4zMzcgNy40MzNjLTEuMTQ0IDAtMi4wNjMtLjkyNi0yLjA2My0yLjA2NSAwLTEuMTM4LjkyLTIuMDYzIDIuMDY1LTIuMDYzIDEuMTQgMCAyLjA2NC45MjUgMi4wNjQgMi4wNjMgMCAxLjEzOS0uOTI1IDIuMDY1LTIuMDY0IDIuMDY1em0xLjc4MiAxMy4wMTlIMy41NTVWOWgzLjU2NHYxMS40NTJ6TTIyLjIyNSAwSDEuNzcxQy43OTIgMCAwIC43NzQgMCAxLjcyOXYyMC41NDJDMCAyMy4yMjcuNzkyIDI0IDEuNzcxIDI0aDIwLjQ1MUMyMy4yIDI0IDI0IDIzLjIyNyAyNCAyMi4yNzFWMS43MjlDMjQgLjc3NCAyMy4yIDAgMjIuMjIyIDBoLjAwM3oiLz48L3N2Zz4=`,
       color: '#0077B5'
     },
     twitter: {
-      svg: `PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjMuOTUzIDQuNTdhMTAgMTAgMCAwMS0yLjgyNS43NzUgNC45NTggNC45NTggMCAwMDIuMTYzLTIuNzIzYy0uOTUxLjU1NS0yLjAwNS45NTktMy4xMjcgMS4xODRhNC45MiA0LjkyIDAgMDAtOC4zODQgNC40ODJDNy42OSA4LjA5NSA0LjA2NyA2LjEzIDEuNjQgMy4xNjJhNC44MjIgNC44MjIgMCAwMC0uNjY2IDIuNDc1YzAgMS43MS44NyAzLjIxMyAyLjE4OCA0LjA5NmE0LjkwNCA0LjkwNCAwIDAxLTIuMjI4LS42MTZ2LjA2YTQuOTIzIDQuOTIzIDAgMDAzLjk0NiA0LjgyNyA0Ljk5NiA0Ljk5NiAwIDAxLTIuMjEyLjA4NSA0LjkzNiA0LjkzNiAwIDAwNC42MDQgMy40MTcgOS44NjcgOS44NjcgMCAwMS02LjEwMiAyLjEwNWMtLjM5IDAtLjc3OS0uMDIzLTEuMTctLjA2N2ExMy45OTUgMTMuOTk1IDAgMDA3LjU1NyAyLjIwOWM5LjA1MyAwIDEzLjk5OC03LjQ5NiAxMy45OTgtMTMuOTg1IDAtLjIxIDAtLjQyLS4wMTUtLjYzQTkuOTM1IDkuOTM1IDAgMDAyNCA0LjU5eiIvPjwvc3ZnPg==`,
+      svg: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjMURBMUYyIj48cGF0aCBkPSJNMjMuOTUzIDQuNTdhMTAgMTAgMCAwMS0yLjgyNS43NzUgNC45NTggNC45NTggMCAwMDIuMTYzLTIuNzIzYy0uOTUxLjU1NS0yLjAwNS45NTktMy4xMjcgMS4xODRhNC45MiA0LjkyIDAgMDAtOC4zODQgNC40ODJDNy42OSA4LjA5NSA0LjA2NyA2LjEzIDEuNjQgMy4xNjJhNC44MjIgNC44MjIgMCAwMC0uNjY2IDIuNDc1YzAgMS43MS44NyAzLjIxMyAyLjE4OCA0LjA5NmE0LjkwNCA0LjkwNCAwIDAxLTIuMjI4LS42MTZ2LjA2YTQuOTIzIDQuOTIzIDAgMDAzLjk0NiA0LjgyNyA0Ljk5NiA0Ljk5NiAwIDAxLTIuMjEyLjA4NSA0LjkzNiA0LjkzNiAwIDAwNC42MDQgMy40MTcgOS44NjcgOS44NjcgMCAwMS02LjEwMiAyLjEwNWMtLjM5IDAtLjc3OS0uMDIzLTEuMTctLjA2N2ExMy45OTUgMTMuOTk1IDAgMDA3LjU1NyAyLjIwOWM5LjA1MyAwIDEzLjk5OC03LjQ5NiAxMy45OTgtMTMuOTg1IDAtLjIxIDAtLjQyLS4wMTUtLjYzQTkuOTM1IDkuOTM1IDAgMDAyNCA0LjU5eiIvPjwvc3ZnPg==`,
       color: '#1DA1F2'
     },
     facebook: {
-      svg: `PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjQgMTIuMDczYzAtNi42MjctNS4zNzMtMTItMTItMTJzLTEyIDUuMzczLTEyIDEyYzAgNS45OSA0LjM4OCAxMC45NTQgMTAuMTI1IDExLjg1NHYtOC4zODVINy4wNzh2LTMuNDdoMy4wNDdWOS40M2MwLTMuMDA3IDEuNzkyLTQuNjY5IDQuNTMzLTQuNjY5IDEuMzEyIDAgMi42ODYuMjM1IDIuNjg2LjIzNXYyLjk1M0gxNS44M2MtMS40OTEgMC0xLjk1Ni45MjUtMS45NTYgMS44NzR2Mi4yNWgzLjMyOGwtLjUzMiAzLjQ3aC0yLjc5NnY4LjM4NUMxOS42MTIgMjMuMDI3IDI0IDE4LjA2MiAyNCAxMi4wNzN6Ii8+PC9zdmc+`,
+      svg: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjMTg3N0YyIj48cGF0aCBkPSJNMjQgMTIuMDczYzAtNi42MjctNS4zNzMtMTItMTItMTJzLTEyIDUuMzczLTEyIDEyYzAgNS45OSA0LjM4OCAxMC45NTQgMTAuMTI1IDExLjg1NHYtOC4zODVINy4wNzh2LTMuNDdoMy4wNDdWOS40M2MwLTMuMDA3IDEuNzkyLTQuNjY5IDQuNTMzLTQuNjY5IDEuMzEyIDAgMi42ODYuMjM1IDIuNjg2LjIzNXYyLjk1M0gxNS44M2MtMS40OTEgMC0xLjk1Ni45MjUtMS45NTYgMS44NzR2Mi4yNWgzLjMyOGwtLjUzMiAzLjQ3aC0yLjc5NnY4LjM4NUMxOS42MTIgMjMuMDI3IDI0IDE4LjA2MiAyNCAxMi4wNzN6Ii8+PC9zdmc+`,
       color: '#1877F2'
     },
     instagram: {
-      svg: `PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMEM4LjczNiAwIDguMzMyLjAxIDcuMDUyLjA2IDUuNzc1LjExIDQuOTA1LjI3OCA0LjE0LjUyNSAzLjM1Ljc4NCAyLjY4MiAxLjE1IDIuMDE0IDEuODIgMS4zNDcgMi40OS45OCAzLjE1OC43MjIgMy45NDcuNDcgNC43Mi4zMDMgNS41OS4yNTMgNi44Ni4yMDQgOC4xNS4yIDguNTQuMiAxMS44MTNzLjAwNCAzLjY2LjA1NSA0Ljk0OGMuMDUgMS4yOC4yMTggMi4xNDcuNDY1IDIuOTEzLjI2Ljg3LjYyIDEuNTM3IDEuMjk2IDIuMjE1LjY3Ni42NzYgMS4zMyAxLjA0IDEuOTk4IDEuMi43NTIuMjU1IDEuNi40MjYgMi45My40OCAxLjMyNS4wNCAxLjc1NC4wNSA0Ljk3NS4wNXMzLjY1NS0uMDEgNC45OC0uMDVjMS4zMjUtLjA1NSAyLjE4Ny0uMjI3IDIuOTMtLjQ4LjgwNS0uMjU3IDEuNDctLjYyIDIuMTI4LTEuMjg1LjY1Ni0uNjU3IDEuMDItMS4zMjYgMS4yOC0yLjEyNy4yNTMtLjc0NC40MjQtMS42MTQuNDgtMi45My4wNDYtMS4zMTMuMDQ2LTEuNzI2LjA0Ni00Ljk5NCAwLTMuMjY2LS4wMDgtMy42ODItLjA1Ni01LjAwNy0uMDU1LTEuMy0uMjM1LTIuMTYtLjQyNi0uMzU0LS45ODItLjUzLTEuNjY4LS41M0g4LjQ1MXYzLjI4MXpNMTYuMTEgMTUuMTloNi42MDZjLjAzMS0uNjk5LS4wMjQtMS4zNy0uMTY0LTIuMDE0YTQuMTA0IDQuMTA0IDAgMCAwLS42MjMtMS41NjJjLS4yOTYtLjQ1Mi0uNjktLjgxNi0xLjE4LTEuMDk1YTMuNTY1IDMuNTY1IDAgMCAwLTEuNjM5LS40MTljLS43NzUgMC0xLjQ1Ny4xNzgtMi4wNDkuNTM0YTMuOTQyIDMuOTQyIDAgMCAwLTEuMzc3IDEuNDIzYy0uMzI2LjU5Ni0uNDkgMS4yNDgtLjQ5IDEuOTYgMCAuNzQ0LjE2NCAxLjQwOC40OSAxLjk5M3MuNzc2IDEuMDQ5IDEuMzUgMS4zODZjLjU3NS4zMzggMS4xOTcuNTA2IDEuODY3LjUwNy45NzYgMCAxLjc5Mi0uMjU4IDIuNDQtLjc3My42NDgtLjUxNiAxLjA1NS0xLjIxMiAxLjIyMS0yLjA4OWgtMi4xNDhjLS4wODEuMzEtLjI1LjU2NS0uNTA4Ljc2YTEuNTYgMS41NiAwIDAxLS44OTUuMjU4Yy0uNTM2IDAtLjk1My0uMTgzLTEuMjUtLjU0OC0uMjk3LS4zNjYtLjQ2LS44NTQtLjQ5NS0xLjQ2Mmg1LjMxM3ptLS4zNjgtMS43NzhoLTQuMTE0Yy4wMi4zNC4xMjIuNjQzLjMwOS45MDkuMTg3LjI2Ni40MzQuNDc0Ljc0MS42MjYuMzA3LjE1Mi42Ni4yMjcgMS4wNi4yMjcuMzgyIDAgLjcxMy0uMDczLjk5Ny0uMjE4YTIuODggMi44OCAwIDAwLjY5Ny0uNTQzYy4xNjUtLjIwNi4yNzktLjQzOC4zNDUtLjY5NmwuMDQtLjEzMmwuMDI0LS4wODNjLjAxLS4wMy4wMTgtLjA2LjAyNC0uMDl6bS0uMDQtNC4zNDlIMjJ2MS42MmgtNC4zMDN2LTEuNjJ6IiBmaWxsPSIjMDA3MEJCII+PC9wYXRoPjwvc3ZnPg==`,
+      svg: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjRTQ0MDVGIj48cGF0aCBkPSJNMTIuMDE3IDBoNC43NjhjMS42OC4wMjcgMi45OTcuMDcxIDMuOTM2IDIuMTY4LjE0My4zMjMuMjQ0LjY5My4yNDQgMS4wOTlWMjEuNzMzYzAgLjQyNi0uMTAzLjc4OC0uMjQ0IDEuMDk5LS4zOTEuODU3LS44MDggMS41NDctMS40MDMgMi4xNDItLjU5My41OTMtMS4yODYgMS4wMDktMi4xNDIgMS40MDMtLjMxMS4xNDEtLjY3My4yNDQtMS4wOTkuMjQ0SDIuMjY3Yy0uNDI2IDAtLjc4Ny0uMTAzLTEuMDk5LS4yNDQtLjg1Ny0uMzk0LTEuNTQ5LS44MS0yLjE0Mi0xLjQwM0MtLjM2NyAyMy4wMjEtLjc4MiAyMi4zMjktMS4xNzYgMjEuNDcyYy0uMTQxLS4zMTEtLjI0NC0uNjczLS4yNDQtMS4wOTlWMi4yNjdjMC0uNDA2LjEwMy0uNzc2LjI0NC0xLjA5OS40MjktMS45NjMgMS44ODctMi4xNDEgMy45MzYtMi4xNjhoNC43NjhMMTIuMDE3IDB6bTMuNzQ4IDcuNDdhMS45IDEuOSAwIDAwLTEuOSAxLjlWMTJhMS45IDEuOSAwIDAwMS45IDEuOWgyLjU5YTEuOSAxLjkgMCAwMDEuOS0xLjlWOS4zN2ExLjkgMS45IDAgMDAtMS45LTEuOWgtMi41OXptLTcuNSAxLjAzdjguOTk2QzguMjY1IDIwLjk5NyAxMC43MTggMjEgMTIgMjFoMC4wNDJjNC4yNiAwIDcuMDI2LTIuNzY2IDcuMDI2LTcuMDI2VjEwLjA0MmMwLTQuMjYtMi43NjYtNy4wMjYtNy4wMjYtNy4wMjZIOVptMCAwSDYuNDg3Yy00LjI2IDAtNy4wMjYgMi43NjYtNy4wMjYgNy4wMjZ2My45NThjMCA0LjI2IDIuNzY2IDcuMDI2IDcuMDI2IDcuMDI2SDEyeiIvPjwvc3ZnPg==`,
       color: '#E4405F'
     },
     github: {
-      svg: `PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgLjI5N2MtNi42MyAwLTEyIDUuMzczLTEyIDEyIDAgNS4zMDMgMy40MzggOS44IDguMjA1IDExLjM4NS42LjExMy44Mi0uMjU4LjgyLS41NzcgMC0uMjg1LS4wMS0xLjA0LS4wMTUtMi4wNC0zLjMzOC43MjQtNC4wNDItMS42MS00LjA0Mi0xLjYxQzQuNDIyIDE4LjA3IDMuNjMzIDE3LjcgMy42MzMgMTcuN2MtMS4wODctLjc0NC4wODQtLjcyOS4wODQtLjcyOSAxLjIwNS4wODQgMS44MzggMS4yMzYgMS44MzggMS4yMzYgMS4wNyAxLjgzNSAyLjgwOSAxLjMwNSAzLjQ5NS45OTguMTA4LS43NzYuNDE3LTEuMzA1Ljc2LTEuNjA1LTIuNjY1LS4zLTUuNDY2LTEuMzMyLTUuNDY2LTUuOTMgMC0xLjMxLjQ2NS0yLjM4IDEuMjM1LTMuMjItLjEzNS0uMzAzLS41NC0xLjUyMy4xMDUtMy4xNzYgMCAwIDEuMDA1LS4zMjIgMy4zIDEuMjMuOTYtLjI2NyAxLjk4LS4zOTkgMy0uNDA1IDEuMDIuMDA2IDIuMDQuMTM4IDMgLjQwNSAyLjI4LTEuNTUyIDMuMjg1LTEuMjMgMy4yODUtMS4yMy42NDUgMS42NTMuMjQgMi44NzMuMTIgMy4xNzYuNzY1Ljg0IDEuMjMgMS45MSAxLjIzIDMuMjIgMCA0LjYxLTIuODA1IDUuNjI1LTUuNDc1IDUuOTIuNDIuMzYuODEgMS4wOTYuODEgMi4yMiAwIDEuNjA2LS4wMTUgMi44OTYtLjAxNSAzLjI4NiAwIC4zMTUuMjEuNjkuODI1LjU3QzIwLjU2NSAyMi4wOTIgMjQgMTcuNTkyIDI0IDEyLjI5N2MwLTYuNjI3LTUuMzczLTEyLTEyLTEyIi8+PC9zdmc+`,
+      svg: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjMTgxNzE3Ij48cGF0aCBkPSJNMTIgMEM1LjM3NCAwIDAgNS4zNzMgMCAxMiAwIDE3LjMwMiAzLjQzOCAyMS44IDguMjA3IDIzLjM4N2MuNTk5LjExMi44MTktLjI2MS44MTktLjU3NyAwLS4yODUtLjAxLTEuMDQtLjAxNS0yLjA0LTMuMzM4LjcyNC00LjA0Mi0xLjYxLTQuMDQyLTEuNjFDNC40MjIgMTguMDcgMy42MzMgMTcuNyAzLjYzMyAxNy43Yy0xLjA4Ny0uNzQ0LjA4NC0uNzI5LjA4NC0uNzI5IDEuMjA1LjA4NCAxLjgzOCAxLjIzNiAxLjgzOCAxLjIzNiAxLjA3IDEuODM1IDIuODA5IDEuMzA1IDMuNDk1Ljk5OC4xMDgtLjc3Ni40MTctMS4zMDUuNzYtMS42MDUtMi42NjUtLjMtNS40NjYtMS4zMzItNS40NjYtNS45MyAwLTEuMzEuNDY1LTIuMzggMS4yMzUtMy4yMi0uMTM1LS4zMDMtLjU0LTEuNTIzLjEwNS0zLjE3NiAwIDAgMS4wMDUtLjMyMiAzLjMgMS4yMy45Ni0uMjY3IDEuOTgtLjM5OSAzLS40MDUgMS4wMi4wMDYgMi4wNC4xMzggMyAuNDA1IDIuMjgtMS41NTIgMy4yODUtMS4yMyAzLjI4NS0xLjIzLjY0NSAxLjY1My4yNCAyLjg3My4xMiAzLjE3Ni43NjUuODQgMS4yMyAxLjkxIDEuMjMgMy4yMiAwIDQuNjEtMi44MDUgNS42MjUtNS40NzUgNS45Mi40MjUuMzYuODEgMS4wOTYuODEgMi4yMiAwIDEuNjA2LS4wMTUgMi44OTYtLjAxNSAzLjI4NiAwIC4zMTUuMjEuNjkuODI1LjU3QzIwLjU2NSAyMS4wOTIgMjQgMTYuNTkyIDI0IDEyIDI0IDUuMzczIDE4LjYyNyAwIDEyIDB6Ii8+PC9zdmc+`,
       color: '#181717'
     },
     behance: {
-      svg: `PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNy44MDMgNS43N2g0LjAzNWMuNzc1IDAgMS41MDcuMTUzIDIuMTkzLjQ1N3MxLjI2NC43MjkgMS43MjkgMS4yNzJjLjQ2NS41NDQuNjk3IDEuMi42OTcgMS45NyAwIC43MjgtLjE3IDEuMzI3LS41MSAxLjc5OGEzLjYxOCAzLjYxOCAwIDAxLTEuMTE5IDEuMTAxYy42NzQuMjUxIDEuMTk0LjY0MyAxLjU2MiAxLjE3N3MuNTUxIDEuMTczLjU1MSAxLjkxMWMwIC43ODEtLjIgMS40NTUtLjYwMyAyLjAyM2EzLjkyIDMuOTIgMCAwMS0xLjYzMiAxLjMxNGMtLjY3OS4yOTgtMS40MzkuNDQ3LTIuMjgyLjQ0N0g3LjgwM1Y1Ljc3em0uNjQ4IDUuMTUyaDMuNTU1Yy42NjggMCAxLjIwOC0uMTcxIDEuNjE3LS41MTJzLjYxNi0uODIuNjE2LTEuNDM4YzAtLjYzMy0uMTk2LTEuMTE2LS41OC0xLjQ1My0uMzg2LS4zMzYtLjkxOS0uNTA0LTEuNTk4LS41MDRIOC40NXYzLjkwN3ptMCA1LjI1MWgzLjc3M2MuNzA0IDAgMS4yNy0uMTg0IDEuNjk1LS41NTIuNDI2LS4zNjguNjM5LS45MDUuNjM5LTEuNjEzIDAtLjY1Ny0uMjEyLTEuMTYzLS42MzktMS41MTYtLjQyNi0uMzU0LS45ODItLjUzLTEuNjY4LS41M0g4LjQ1MXYzLjI4MXpNMTYuMTEgMTUuMTloNi42MDZjLjAzMS0uNjk5LS4wMjQtMS4zNy0uMTY0LTIuMDE0YTQuMTA0IDQuMTA0IDAgMDAtLjYyMy0xLjU2MmMtLjI5Ni0uNDUyLS42OS0uODE2LTEuMTgtMS4wOTVhMy41NjUgMy41NjUgMCAwMC0xLjYzOS0uNDE5Yy0uNzc1IDAtMS40NTcuMTc4LTIuMDQ5LjUzNGEzLjk0MiAzLjk0MiAwIDAwLTEuMzc3IDEuNDIzYy0uMzI2LjU5Ni0uNDkgMS4yNDgtLjQ5IDEuOTYgMCAuNzQ0LjE2NCAxLjQwOC40OSAxLjk5M3MuNzc2IDEuMDQ5IDEuMzUgMS4zODZjLjU3NS4zMzggMS4xOTcuNTA2IDEuODY3LjUwNy45NzYgMCAxLjc5Mi0uMjU4IDIuNDQtLjc3My42NDgtLjUxNiAxLjA1NS0xLjIxMiAxLjIyMS0yLjA4OWgtMi4xNDhjLS4wODEuMzEtLjI1LjU2NS0uNTA4Ljc2YTEuNTYgMS41NiAwIDAxLS44OTUuMjU4Yy0uNTM2IDAtLjk1My0uMTgzLTEuMjUtLjU0OC0uMjk3LS4zNjYtLjQ2LS44NTQtLjQ5NS0xLjQ2Mmg1LjMxM3ptLS4zNjgtMS43NzhoLTQuMTE0Yy4wMi4zNC4xMjIuNjQzLjMwOS45MDkuMTg3LjI2Ni40MzQuNDc0Ljc0MS42MjYuMzA3LjE1Mi42Ni4yMjcgMS4wNi4yMjcuMzgyIDAgLjcxMy0uMDczLjk5Ny0uMjE4YTIuODggMi44OCAwIDAwLjY5Ny0uNTQzYy4xNjUtLjIwNi4yNzktLjQzOC4zNDUtLjY5NmwuMDQtLjEzMmwuMDI0LS4wODNjLjAxLS4wMy4wMTgtLjA2LjAyNC0uMDl6bS0uMDQtNC4zNDlIMjJ2MS42MmgtNC4zMDN2LTEuNjJ6IiBmaWxsPSIjMDA3MEJCIj48L3BhdGg+PC9zdmc+`,
+      svg: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjMDA3MEJCIJ+PGcgZmlsbD0iIjAwNzBCQiI+PHBhdGggZD0iTTAgNi43djEwLjZoNy4zYzEuNCAwIDIuNy0uMyAzLjgtLjkgMS4xLS42IDEuOS0xLjUgMi4zLTIuNi40LS45LjYtMS45LjYtM2MwLS43LS4yLTEuNC0uNS0yLS4zLS42LS44LTEuMS0xLjQtMS41LjUtLjQgMS0xIDEuMy0xLjcuMy0uNy41LTEuNS41LTIuNGMwLTEuMS0uMy0yLjEtMS0yLjktLjctLjgtMS43LTEuMy0yLjktMS40LTEuNy0uMi0zLjUtLjEtNS4zLS4xSDBoLS4wczAtMCAwIDZ2ek00IDloOWMuNyAwIDEuMy4yIDEuNy43LjQuNC43IDEgLjcgMS43cy0uMyAxLjMtLjcgMS43Yy0uNC40LTEgLjctMS43LjdINHYtMS4xem0wIDQuOGgxMC4zYy44IDAgMS41LjMgMiAuOC41LjYuNyAxLjMuNyAyLjFzLS4yIDEuNS0uNyAyLjFjLS41LjUtMS4yLjgtMiAuOEg0VjEzLjh6bTE0LjEtNi43aDUuOXYxLjZIMTguMVY3LjF6bS0uMSA0LjloNy4yYy4wMiAxLjEtLjEgMi4yLS40IDMuMi0uMyAxLjEtLjggMi4wMS0xLjUgMi44LS43Ljc4LTEuNSAxLjM5LTIuNCAxLjgxLTEgLjQzLTIuMDguNjItMy4xOC42Mi0xLjAzIDAtMi4wMi0uMTctMi45NS0uNTJhNy44NSA3Ljg1IDAgMDEtMi41Mi0xLjQ3Yy0uNzItLjY0LTEuMjktMS40MS0xLjctMi4zNC0uNDItLjkzLS42My0xLjk2LS42My0zLjA4czAuMjEtMi4xNS42My0zLjA4Yy4wNC0uMjAuNjY2LTEuNyAxLjctMi4zNGE3LjA1IDcuMDUgMCAwMTIuNTItMS40N2M0LjI4LTEuODIgOC44OCAwIDEwIDQuNDNIMThsLS4wNS0uMDNjLS4yOC0uODUtLjc2LTEuNTgtMS40My0yLjE5YTQuMTggNC4xOCAwIDAwLTIuNDEtLjc5Yy0uOTUgMC0xLjgxLjMzLTIuNTYgMS4wYTMuNSAzLjUgMCAwMC0xLjMzIDIuODRoLTYuNDl6Ii8+PC9nPjwvc3ZnPg==`,
       color: '#0070BB'
     }
   };
@@ -307,25 +305,23 @@ const generateSocialIconsHTML = (
   const iconSize = 20;
   const iconSpacing = 8;
 
-  // Create HTML for social icons based on style
   let icons = '';
   
   Object.entries(socialLinks).forEach(([platform, url]) => {
-    if (!url) return; // Skip if no URL provided
+    if (!url) return;
     
     const iconInfo = iconData[platform as keyof typeof iconData];
-    if (!iconInfo) return; // Skip if platform not found in iconData
+    if (!iconInfo) return;
     
     const sanitizedUrl = sanitizeUrl(url);
-    const iconColor = style === 'color' ? iconInfo.color : style === 'monochrome' ? '#555555' : 'white';
     const bgColor = (style === 'circle' || style === 'square') ? iconInfo.color : 'transparent';
     const borderRadius = style === 'circle' ? '50%' : style === 'square' ? '4px' : '0';
     const padding = (style === 'circle' || style === 'square') ? '6px' : '0';
     
     icons += `
       <a href="${sanitizedUrl}" style="display: inline-block; margin-right: ${iconSpacing}px; text-decoration: none;" target="_blank" rel="noopener noreferrer">
-        <div style="background-color: ${bgColor}; border-radius: ${borderRadius}; padding: ${padding}; display: flex; align-items: center; justify-content: center; width: ${iconSize}px; height: ${iconSize}px;">
-          <img src="data:image/svg+xml;base64,${iconInfo.svg}" alt="${platform}" style="width: ${style === 'circle' || style === 'square' ? '16px' : iconSize + 'px'}; height: ${style === 'circle' || style === 'square' ? '16px' : iconSize + 'px'}; ${style !== 'color' && style !== 'monochrome' ? '' : `filter: ${iconColor === '#555555' ? 'grayscale(100%)' : ''};`}">
+        <div style="background-color: ${bgColor}; border-radius: ${borderRadius}; padding: ${padding}; display: inline-block; width: ${iconSize}px; height: ${iconSize}px; text-align: center; line-height: ${iconSize}px;">
+          <img src="${iconInfo.svg}" alt="${platform}" style="width: ${style === 'circle' || style === 'square' ? '16px' : iconSize + 'px'}; height: ${style === 'circle' || style === 'square' ? '16px' : iconSize + 'px'}; vertical-align: middle; border: none; display: inline-block;">
         </div>
       </a>
     `;

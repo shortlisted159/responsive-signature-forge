@@ -58,117 +58,129 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
 
   const handleCopyFromIframe = async () => {
     try {
-      // Get the iframe element where the preview is rendered
       const iframe = iframeRef.current;
-      if (!iframe || !iframe.contentDocument) {
-        throw new Error("Preview iframe not found");
+      if (!iframe || !iframe.contentDocument || !iframe.contentWindow) {
+        throw new Error("Preview iframe not accessible");
       }
       
-      // Select the content inside the iframe
-      const signatureElement = iframe.contentDocument.querySelector('.signature-wrapper');
-      if (!signatureElement) {
-        throw new Error("Signature element not found in preview");
+      // Find the actual signature table in the iframe
+      const signatureTable = iframe.contentDocument.querySelector('table');
+      if (!signatureTable) {
+        throw new Error("Signature table not found in preview");
       }
       
-      // Create a selection range and select the content
-      const selection = iframe.contentWindow?.getSelection();
+      // Create selection range for the table element
       const range = iframe.contentDocument.createRange();
-      range.selectNode(signatureElement);
+      range.selectNode(signatureTable);
       
-      if (selection) {
-        selection.removeAllRanges();
-        selection.addRange(range);
-        
-        // Try to use clipboard commands
-        if (iframe.contentDocument.execCommand('copy')) {
-          setIsCopying(true);
-          toast.success("Signature copied to clipboard", {
-            description: "The formatted signature has been copied and is ready to paste in Gmail"
-          });
-          setTimeout(() => setIsCopying(false), 2000);
-        } else {
-          throw new Error("Copy operation failed");
-        }
-        
-        // Clear selection after copying
-        selection.removeAllRanges();
-      } else {
+      const selection = iframe.contentWindow.getSelection();
+      if (!selection) {
         throw new Error("Could not get selection from iframe");
       }
-    } catch (error) {
-      console.error("Error copying signature:", error);
       
-      // Fallback method if the primary method fails
+      selection.removeAllRanges();
+      selection.addRange(range);
+      
+      // Try to copy using the iframe's document
+      if (iframe.contentDocument.execCommand('copy')) {
+        setIsCopying(true);
+        toast.success("Signature copied to clipboard", {
+          description: "The formatted signature has been copied and is ready to paste in your email"
+        });
+        setTimeout(() => setIsCopying(false), 2000);
+      } else {
+        throw new Error("Copy command failed");
+      }
+      
+      // Clear selection
+      selection.removeAllRanges();
+      
+    } catch (error) {
+      console.error("Primary copy method failed:", error);
+      
+      // Fallback method - create a clean temporary iframe
       try {
-        // Create a temporary hidden iframe with the signature content
         const tempIframe = document.createElement('iframe');
-        tempIframe.srcdoc = getFullHtmlDocument();
         tempIframe.style.position = 'fixed';
         tempIframe.style.left = '-9999px';
         tempIframe.style.top = '-9999px';
-        tempIframe.width = '500';
-        tempIframe.height = '500';
-        // Fixed: Use setAttribute instead of direct assignment for sandbox
+        tempIframe.style.width = '1px';
+        tempIframe.style.height = '1px';
         tempIframe.setAttribute('sandbox', 'allow-same-origin');
         
-        // Add the iframe to the document
+        // Create clean HTML document with only the signature
+        tempIframe.srcdoc = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <style>
+                body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+              </style>
+            </head>
+            <body>
+              ${signatureHTML}
+            </body>
+          </html>
+        `;
+        
         document.body.appendChild(tempIframe);
         
         tempIframe.onload = () => {
           setTimeout(() => {
             try {
-              // Focus the iframe to make sure copy works
-              tempIframe.contentWindow?.focus();
-              
-              // Select all content in the iframe
-              const tempDoc = tempIframe.contentDocument;
-              if (tempDoc) {
-                const signatureElement = tempDoc.querySelector('.signature-wrapper');
-                if (signatureElement) {
-                  const tempRange = tempDoc.createRange();
-                  tempRange.selectNode(signatureElement);
-                  
-                  const tempSelection = tempIframe.contentWindow?.getSelection();
-                  if (tempSelection) {
-                    tempSelection.removeAllRanges();
-                    tempSelection.addRange(tempRange);
-                    
-                    // Execute copy command
-                    const success = tempDoc.execCommand('copy');
-                    
-                    if (success) {
-                      setIsCopying(true);
-                      toast.success("Signature copied to clipboard", {
-                        description: "The formatted signature has been copied and is ready to paste in Gmail"
-                      });
-                      setTimeout(() => setIsCopying(false), 2000);
-                    } else {
-                      throw new Error("Copy command failed in fallback");
-                    }
-                  }
-                }
+              if (!tempIframe.contentDocument || !tempIframe.contentWindow) {
+                throw new Error("Temp iframe not accessible");
               }
-            } catch (innerError) {
-              console.error("Fallback copy failed:", innerError);
+              
+              // Select the signature table from the clean iframe
+              const tempTable = tempIframe.contentDocument.querySelector('table');
+              if (!tempTable) {
+                throw new Error("Table not found in temp iframe");
+              }
+              
+              const tempRange = tempIframe.contentDocument.createRange();
+              tempRange.selectNode(tempTable);
+              
+              const tempSelection = tempIframe.contentWindow.getSelection();
+              if (!tempSelection) {
+                throw new Error("Could not get selection from temp iframe");
+              }
+              
+              tempSelection.removeAllRanges();
+              tempSelection.addRange(tempRange);
+              
+              if (tempIframe.contentDocument.execCommand('copy')) {
+                setIsCopying(true);
+                toast.success("Signature copied to clipboard", {
+                  description: "The formatted signature has been copied and is ready to paste in your email"
+                });
+                setTimeout(() => setIsCopying(false), 2000);
+              } else {
+                throw new Error("Fallback copy failed");
+              }
+              
+            } catch (fallbackError) {
+              console.error("Fallback copy failed:", fallbackError);
               toast.error("Could not copy signature", {
-                description: "Try selecting all content in the preview and copying manually"
+                description: "Try selecting the signature manually and copying with Ctrl+C"
               });
             } finally {
-              // Clean up by removing the temporary iframe
               document.body.removeChild(tempIframe);
             }
           }, 100);
         };
         
       } catch (fallbackError) {
+        console.error("Could not create fallback iframe:", fallbackError);
         toast.error("Could not copy signature", {
-          description: "Try selecting all content in the preview and copying manually"
+          description: "Try selecting the signature manually and copying with Ctrl+C"
         });
       }
     }
   };
 
-  // Create a full HTML document for the iframe
+  // Create clean HTML document for iframe without wrapper divs
   const getFullHtmlDocument = () => {
     return `
       <!DOCTYPE html>
@@ -181,14 +193,13 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
             body {
               font-family: Arial, sans-serif;
               margin: 20px;
+              padding: 0;
               background-color: white;
             }
           </style>
         </head>
         <body>
-          <div class="signature-wrapper">
-            ${signatureHTML}
-          </div>
+          ${signatureHTML}
         </body>
       </html>
     `;
@@ -277,7 +288,7 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
                       </>
                     ) : (
                       <>
-                        <Copy className="h-4 w-4" /> Copy from Preview
+                        <Copy className="h-4 w-4" /> Copy Signature
                       </>
                     )}
                   </Button>
@@ -285,7 +296,7 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
                 
                 <div className="mt-4 text-sm border-t pt-4 dark:border-slate-700">
                   <ol className="list-decimal pl-5 space-y-1">
-                    <li>Click <strong>Copy from Preview</strong> to copy the formatted signature</li>
+                    <li>Click <strong>Copy Signature</strong> to copy the formatted signature</li>
                     <li>Go to your email client's signature settings</li>
                     <li>Click in the signature editor and paste (Ctrl+V or Cmd+V)</li>
                     <li>Save your changes</li>
@@ -309,7 +320,7 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
       
       <div className="border-t p-3 flex justify-between items-center bg-white dark:bg-slate-900 dark:border-slate-700">
         <p className="text-xs text-muted-foreground">
-          Toggle between preview and code view. Copy directly from the preview for best results.
+          Copy the signature from the preview above for best email compatibility.
         </p>
       </div>
     </div>
