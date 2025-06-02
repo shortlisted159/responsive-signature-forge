@@ -18,9 +18,9 @@ import {
   Code, 
   Mail
 } from "lucide-react";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
+import { copySignatureFromIframe } from "@/lib/signatureCopy";
 
 interface SignaturePreviewProps {
   signature: SignatureData;
@@ -57,127 +57,9 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
   };
 
   const handleCopyFromIframe = async () => {
-    try {
-      const iframe = iframeRef.current;
-      if (!iframe || !iframe.contentDocument || !iframe.contentWindow) {
-        throw new Error("Preview iframe not accessible");
-      }
-      
-      // Find the actual signature table in the iframe
-      const signatureTable = iframe.contentDocument.querySelector('table');
-      if (!signatureTable) {
-        throw new Error("Signature table not found in preview");
-      }
-      
-      // Create selection range for the table element
-      const range = iframe.contentDocument.createRange();
-      range.selectNode(signatureTable);
-      
-      const selection = iframe.contentWindow.getSelection();
-      if (!selection) {
-        throw new Error("Could not get selection from iframe");
-      }
-      
-      selection.removeAllRanges();
-      selection.addRange(range);
-      
-      // Try to copy using the iframe's document
-      if (iframe.contentDocument.execCommand('copy')) {
-        setIsCopying(true);
-        toast.success("Signature copied to clipboard", {
-          description: "The formatted signature has been copied and is ready to paste in your email"
-        });
-        setTimeout(() => setIsCopying(false), 2000);
-      } else {
-        throw new Error("Copy command failed");
-      }
-      
-      // Clear selection
-      selection.removeAllRanges();
-      
-    } catch (error) {
-      console.error("Primary copy method failed:", error);
-      
-      // Fallback method - create a clean temporary iframe
-      try {
-        const tempIframe = document.createElement('iframe');
-        tempIframe.style.position = 'fixed';
-        tempIframe.style.left = '-9999px';
-        tempIframe.style.top = '-9999px';
-        tempIframe.style.width = '1px';
-        tempIframe.style.height = '1px';
-        tempIframe.setAttribute('sandbox', 'allow-same-origin');
-        
-        // Create clean HTML document with only the signature
-        tempIframe.srcdoc = `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset="utf-8">
-              <style>
-                body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
-              </style>
-            </head>
-            <body>
-              ${signatureHTML}
-            </body>
-          </html>
-        `;
-        
-        document.body.appendChild(tempIframe);
-        
-        tempIframe.onload = () => {
-          setTimeout(() => {
-            try {
-              if (!tempIframe.contentDocument || !tempIframe.contentWindow) {
-                throw new Error("Temp iframe not accessible");
-              }
-              
-              // Select the signature table from the clean iframe
-              const tempTable = tempIframe.contentDocument.querySelector('table');
-              if (!tempTable) {
-                throw new Error("Table not found in temp iframe");
-              }
-              
-              const tempRange = tempIframe.contentDocument.createRange();
-              tempRange.selectNode(tempTable);
-              
-              const tempSelection = tempIframe.contentWindow.getSelection();
-              if (!tempSelection) {
-                throw new Error("Could not get selection from temp iframe");
-              }
-              
-              tempSelection.removeAllRanges();
-              tempSelection.addRange(tempRange);
-              
-              if (tempIframe.contentDocument.execCommand('copy')) {
-                setIsCopying(true);
-                toast.success("Signature copied to clipboard", {
-                  description: "The formatted signature has been copied and is ready to paste in your email"
-                });
-                setTimeout(() => setIsCopying(false), 2000);
-              } else {
-                throw new Error("Fallback copy failed");
-              }
-              
-            } catch (fallbackError) {
-              console.error("Fallback copy failed:", fallbackError);
-              toast.error("Could not copy signature", {
-                description: "Try selecting the signature manually and copying with Ctrl+C"
-              });
-            } finally {
-              document.body.removeChild(tempIframe);
-            }
-          }, 100);
-        };
-        
-      } catch (fallbackError) {
-        console.error("Could not create fallback iframe:", fallbackError);
-        toast.error("Could not copy signature", {
-          description: "Try selecting the signature manually and copying with Ctrl+C"
-        });
-      }
-    }
+    setIsCopying(true);
+    const success = await copySignatureFromIframe(iframeRef);
+    setTimeout(() => setIsCopying(false), 2000);
   };
 
   // Create clean HTML document for iframe without wrapper divs
@@ -192,8 +74,8 @@ export default function SignaturePreview({ signature }: SignaturePreviewProps) {
           <style>
             body {
               font-family: Arial, sans-serif;
-              margin: 20px;
-              padding: 0;
+              margin: 0;
+              padding: 20px;
               background-color: white;
             }
           </style>
